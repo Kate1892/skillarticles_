@@ -123,18 +123,6 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
 
 class ViewModelFactory(owner: SavedStateRegistryOwner, private val params: String) :
     AbstractSavedStateViewModelFactory(owner, bundleOf()) {
-    // TODO
-//    override fun <T : ViewModel?> create(
-//        key: String,
-//        modelClass: Class<T>,
-//        handle: SavedStateHandle
-//    ): T {
-//        if (modelClass.isAssignableFrom(ArticleViewModel::class.java)) {
-//            return ArticleViewModel(params, handle) as T
-//        }
-//        throw IllegalArgumentException("Unknown ViewModel class")
-//    }
-
     override fun <T : ViewModel> create(
         key: String,
         modelClass: Class<T>,
@@ -169,15 +157,6 @@ class Event<out E>(private val content: E) {
  * необработанное ранее событие получаемое в реализации метода Observer`a onChanged
  */
 class EventObserver<E>(private val onEventUnhandledContent: (E) -> Unit) : Observer<Event<E>> {
-
-    // TODO
-//    override fun onChanged(event: Event<E>?) {
-//        //если есть необработанное событие (контент) передай в качестве аргумента в лямбду
-//        // onEventUnhandledContent
-//        event?.getContentIfNotHandled()?.let {
-//            onEventUnhandledContent(it)
-//        }
-//    }
 
     override fun onChanged(event: Event<E>) {
         event.getContentIfNotHandled()?.let {

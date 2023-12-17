@@ -132,7 +132,6 @@ class RootActivity : AppCompatActivity(), IArticleView {
                 val (_, label, handler) = notify
 
                 with(snackbar) {
-                    // TODO color?
                     setBackgroundTint(getColor(R.color.design_default_color_error))
                     setTextColor(getColor(android.R.color.white))
                     setActionTextColor(getColor(android.R.color.white))

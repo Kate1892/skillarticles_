@@ -111,7 +111,6 @@ class HeaderSpan constructor(
     }
 
     override fun getLeadingMargin(first: Boolean): Int {
-        //TODO implement me
         return 0
     }
 

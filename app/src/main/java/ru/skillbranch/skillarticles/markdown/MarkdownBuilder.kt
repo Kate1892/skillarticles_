@@ -120,21 +120,21 @@ class MarkdownBuilder(context: Context) {
                     }
                 }
 
-//                is Element.Link -> {
-//                    inSpans(
-//                        IconLinkSpan(linkIcon, gap, colorPrimary, strikeWidth)
-//                    ) {
-//                        append(element.text)
-//                    }
-//                }
-
                 is Element.Link -> {
                     inSpans(
-                        UnderlineSpan(colorPrimary)
+                        IconLinkSpan(linkIcon, gap, colorPrimary, strikeWidth)
                     ) {
                         append(element.text)
                     }
                 }
+
+//                is Element.Link -> {
+//                    inSpans(
+//                        UnderlineSpan(colorPrimary)
+//                    ) {
+//                        append(element.text)
+//                    }
+//                }
 
                 is Element.OrderedListItem -> {
                     inSpans(
