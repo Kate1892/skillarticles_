@@ -1,10 +1,6 @@
-package ru.skillbranch.skillarticles.markdown
+package ru.skillbranch.skillarticles.data.repositories
 
-import android.util.Log
-import ru.skillbranch.skillarticles.extensions.countDigits
-import java.util.*
 import java.util.regex.Pattern
-import kotlin.collections.ArrayList
 
 object MarkdownParser {
 

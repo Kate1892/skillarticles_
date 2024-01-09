@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.markdown
+package ru.skillbranch.skillarticles.ui.custom.markdown
 
 import android.content.Context
 import android.graphics.Color
@@ -7,15 +7,21 @@ import android.text.SpannableStringBuilder
 import android.text.SpannedString
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
-import android.text.style.URLSpan
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.data.repositories.Element
+import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToPx
-import ru.skillbranch.skillarticles.markdown.spans.*
+import ru.skillbranch.skillarticles.ui.custom.spans.BlockquotesSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.HeaderSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.HorizontalRuleSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.IconLinkSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.InlineCodeSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.OrderedListSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.UnorderedListSpan
 
 class MarkdownBuilder(context: Context) {
     private val colorSecondary =

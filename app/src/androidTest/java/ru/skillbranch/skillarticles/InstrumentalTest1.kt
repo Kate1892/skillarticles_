@@ -17,6 +17,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import ru.skillbranch.skillarticles.markdown.spans.*
 import io.mockk.*
+import ru.skillbranch.skillarticles.ui.custom.spans.BlockquotesSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.HeaderSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.HorizontalRuleSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.IconLinkSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.InlineCodeSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.OrderedListSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.UnderlineSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.UnorderedListSpan
 
 /**
  * Instrumented test, which will execute on an Android device.
