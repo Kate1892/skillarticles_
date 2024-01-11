@@ -2,18 +2,23 @@ package ru.skillbranch.skillarticles.viewmodels
 
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.VisibleForTesting
 import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
-import ru.skillbranch.skillarticles.extensions.*
+import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
+import ru.skillbranch.skillarticles.extensions.asMap
+import ru.skillbranch.skillarticles.extensions.format
+import ru.skillbranch.skillarticles.extensions.indexesOf
+import ru.skillbranch.skillarticles.extensions.toAppSettings
+import ru.skillbranch.skillarticles.extensions.toArticlePersonalInfo
 
 class ArticleViewModel(private val articleId: String, savedStateHandle: SavedStateHandle) :
     BaseViewModel<ArticleState>(ArticleState(), savedStateHandle), IArticleViewModel {
     private val repository = ArticleRepository()
+    private var clearContent: String? = null
 
     init {
         //set custom saved state provider for non serializable or custom states
@@ -138,12 +143,16 @@ class ArticleViewModel(private val articleId: String, savedStateHandle: SavedSta
     }
 
     override fun handleSearch(query: String?) {
-//        query ?: return
-//
-//        val result = currentState.content.firstOrNull().indexesOf(query)
-//            .map { it to it + query.length }
-//
-//        updateState { it.copy(searchQuery = query, searchResults = result) }
+        query ?: return
+
+        if (clearContent == null)
+            clearContent = MarkdownParser.clear(currentState.content)
+//            clearContent = currentState.content.clearContent();
+
+        val result = clearContent.indexesOf(query)
+            .map { it to it + query.length }
+
+        updateState { it.copy(searchQuery = query, searchResults = result) }
     }
 
     override fun handleUpResult() {
