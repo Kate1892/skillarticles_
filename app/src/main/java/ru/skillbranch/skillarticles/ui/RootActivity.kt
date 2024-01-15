@@ -5,6 +5,7 @@ import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -260,6 +261,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
 
     override fun renderSearchPosition(searchPosition: Int) {
         val content = vb.tvTextContent.text as Spannable
+        Log.v("CONTENT", content.toString());
 
         val spans = content.getSpans<SearchSpan>()
 
@@ -273,6 +275,10 @@ class RootActivity : AppCompatActivity(), IArticleView {
             //move to selection
             Selection.setSelection(content, content.getSpanStart(result))
             //set new search focus span
+            Log.v(
+                "SPAN1234",
+                content.getSpanStart(result).toString() + content.getSpanEnd(result).toString()
+            )
             content.setSpan(
                 SearchFocusSpan(),
                 content.getSpanStart(result),
@@ -281,7 +287,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
             )
 
         }
-    }   
+    }
 
     override fun clearSearchResult() {
         val content = vb.tvTextContent.text as Spannable

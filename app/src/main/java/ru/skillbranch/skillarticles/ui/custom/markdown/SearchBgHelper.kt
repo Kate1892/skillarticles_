@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.text.Layout
 import android.text.Spanned
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.ColorUtils
 import androidx.core.text.getSpans
@@ -14,6 +15,7 @@ import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.dpToPx
+import ru.skillbranch.skillarticles.extensions.getLineBottomWithoutPadding
 import ru.skillbranch.skillarticles.extensions.getLineTopWithoutPadding
 import ru.skillbranch.skillarticles.ui.custom.spans.HeaderSpan
 import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
@@ -164,7 +166,7 @@ abstract class SearchBgRender(
     }
 
     fun getLineBottom(layout: Layout, line: Int): Int {
-        return layout.getLineTopWithoutPadding(line)
+        return layout.getLineBottomWithoutPadding(line)
     }
 
 }
