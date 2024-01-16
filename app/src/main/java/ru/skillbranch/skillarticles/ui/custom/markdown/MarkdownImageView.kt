@@ -7,6 +7,7 @@ import java.nio.charset.Charset
 import java.security.MessageDigest
 
 import android.annotation.SuppressLint;
+import android.graphics.Canvas
 import android.graphics.Outline
 import android.graphics.Paint
 import android.graphics.Rect
@@ -24,9 +25,17 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.animation.doOnEnd
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.isVisible
+import androidx.core.view.setPadding
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
+import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.dpToPx
+import ru.skillbranch.skillarticles.extensions.setPaddingOptionally
 import java.lang.Math.hypot
+import kotlin.math.hypot
 
 @SuppressLint("ViewConstructor")
 class MarkdownImageView private constructor(
@@ -41,7 +50,7 @@ class MarkdownImageView private constructor(
             field = value
         }
 
-    override val spannableContext: Spannable
+    override val spannableContent: Spannable
         get() = tvTitle.text as Spannable
 
     //views
@@ -65,11 +74,17 @@ class MarkdownImageView private constructor(
     private val cornerRadius: Float = context.dpToPx(4)
 
     @ColorInt
-    private val colorSurface: Int = context.attrValue(R.attr.colorSurface)
+    private val colorSurface: Int =
+//        context.attrValue(R.attr.colorSurface)
+    context.attrValue(com.google.android.material.R.attr.colorSurface)
     @ColorInt
-    private val colorOnSurface: Int = context.attrValue(R.attr.colorOnSurface)
+    private val colorOnSurface: Int
+    //= context.attrValue(R.attr.colorOnSurface)
+    = context.attrValue(com.google.android.material.R.attr.colorOnSurface)
     @ColorInt
-    private val colorOnBackground: Int = context.attrValue(R.attr.colorOnBackground)
+    private val colorOnBackground: Int
+    = context.getColor(R.color.color_divider)
+    //= context.attrValue(R.attr.colorOnBackground)
 
     @ColorInt
     private var lineColor: Int = context.getColor(R.color.color_divider)
@@ -139,7 +154,7 @@ class MarkdownImageView private constructor(
 
             ivImage.setOnClickListener {
                 if (tvAlt?.isVisible == true) animateHideAlt()
-                else animateShowALt()
+                else animateShowAlt()
             }
         }
     }
