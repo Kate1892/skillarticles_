@@ -8,7 +8,8 @@ import androidx.lifecycle.SavedStateHandle
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
-import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
+import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
+import ru.skillbranch.skillarticles.data.repositories.clearContent
 import ru.skillbranch.skillarticles.extensions.asMap
 import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.indexesOf
@@ -65,7 +66,7 @@ class ArticleViewModel(private val articleId: String, savedStateHandle: SavedSta
     }
 
     //load text from network
-    override fun getArticleContent(): LiveData<String?> {
+    override fun getArticleContent(): LiveData<List<MarkdownElement>?> {
         return repository.loadArticleContent(articleId)
     }
 
@@ -145,9 +146,9 @@ class ArticleViewModel(private val articleId: String, savedStateHandle: SavedSta
     override fun handleSearch(query: String?) {
         query ?: return
 
-        if (clearContent == null)
-            clearContent = MarkdownParser.clear(currentState.content)
-//            clearContent = currentState.content.clearContent();
+        if (clearContent == null && currentState.content.isNotEmpty())
+//            clearContent = MarkdownParser.clear(currentState.content)
+            clearContent = currentState.content.clearContent();
 
         val result = clearContent.indexesOf(query)
             .map { it to it + query.length }
@@ -184,11 +185,11 @@ data class ArticleState(
     val date: String? = null, //дата публикации
     val author: Any? = null, //автор статьи
     val poster: String? = null, //обложка статьи
-    val content: String = "Loading", //контент
+    val content: List<MarkdownElement> = emptyList(), //контент
     val reviews: List<Any> = emptyList() //комментарии
 ) : VMState {
     override fun toBundle(): Bundle {
-        val map = copy(content = "Loading", isLoadingContent = true)
+        val map = copy(content = emptyList(), isLoadingContent = true)
             .asMap()
             .toList()
             .toTypedArray()
@@ -219,7 +220,7 @@ data class ArticleState(
             date = map["date"] as String?,
             author = map["author"] as Any?,
             poster = map["poster"] as String?,
-            content = map["content"] as String,
+            content = map["content"] as List<MarkdownElement>,
             reviews = map["reviews"] as List<Any>,
         )
     }

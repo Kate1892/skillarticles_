@@ -6,7 +6,7 @@ import android.text.Layout
 import android.text.style.LeadingMarginSpan
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
-import ru.skillbranch.skillarticles.extensions.getLineTopWithoutPadding
+import ru.skillbranch.skillarticles.extensions.getLineBottomWithoutPadding
 
 
 class UnorderedListSpan(
@@ -32,7 +32,7 @@ class UnorderedListSpan(
             paint.withCustomColor {
                 canvas.drawCircle(
                     gapWidth + currentMarginLocation + bulletRadius,
-                    (lineTop + layout.getLineTopWithoutPadding(layout.getLineForOffset(lineStart))) / 2f,
+                    (lineTop + layout.getLineBottomWithoutPadding(layout.getLineForOffset(lineStart))) / 2f,
                     bulletRadius,
                     paint
                 )

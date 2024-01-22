@@ -37,19 +37,30 @@ object MarkdownParser {
     /**
      * parse markdown text to elements
      */
-    fun parse(string: String): MarkdownText {
+    fun parse(string: String): List<MarkdownElement> {
         val elements = mutableListOf<Element>()
         elements.addAll(findElements(string))
-        return MarkdownText(elements)
+        return elements.fold(mutableListOf()) { acc, el ->
+            val last = acc.lastOrNull()
+            when (el) {
+                is Element.Image -> acc.add(MarkdownElement.Image(el, last?.bounds?.second ?: 0))
+                is Element.BlockCode -> acc.add(MarkdownElement.Scroll(el, last?.bounds?.second ?: 0))
+                else -> {
+                    if (last is MarkdownElement.Text) last.elements.add(el)
+                    else acc.add(MarkdownElement.Text(mutableListOf(el), last?.bounds?.second ?: 0))
+                }
+            }
+            acc
+        }
     }
 
     /**
      * clear markdown text to string without markdown characters
      */
-    fun clear(string: String?): String? {
-        string ?: return null
-        return parse(string).elements.spread().joinToString(separator = "") { it.clearContent() }
-    }
+//    fun clear(string: String?): String? {
+//        string ?: return null
+//        return parse(string).elements.spread().joinToString(separator = "") { it.clearContent() }
+//    }
 
     /**
      * find markdown elements in markdown text
@@ -224,15 +235,10 @@ object MarkdownParser {
                     //full text for regex
                     text = string.subSequence(startIndex, endIndex)
 
-                    var (alt: String?, url: String, title: String?) = "!\\[([^\\[\\]]*?)?]\\((\\S*)[ )]?\"?(.*?)?\"\\)$".toRegex()
-//                    var (alt: String?, url: String, title: String?) = "!\\[(.*)\\]\\((.*?[^ \\\"\\)]+)( \\\".*?\\\")*".toRegex()
-
+                    var (alt: String?, url: String, title: String?) = "^!\\[([^\\[\\]]*?)?]\\((.*?) \"(.*?)\"\\)$".toRegex()
                         .find(text)!!.destructured
 
-//                    if (alt.length == 0) alt = null.toString()
-                    val element = Element.Image(url, if (alt.isBlank()) null else alt, title)
-
-//                    val element = Element.Image(title, url, alt, text)
+                    val element = Element.Image(url, alt, title)
                     parents.add(element)
                     lastStartIndex = endIndex
                 }
@@ -250,6 +256,38 @@ object MarkdownParser {
 }
 
 data class MarkdownText(val elements: List<Element>)
+
+sealed class MarkdownElement {
+    abstract val offset: Int
+    val bounds: Pair<Int, Int> by lazy {
+        when (this) {
+            is Text -> {
+                val end = elements.fold(offset) { acc, el ->
+                    acc + el.spread().map { it.text.length }.sum()
+                }
+                offset to end
+            }
+
+            is Image -> offset to image.text.length + offset
+            is Scroll -> offset to blockCode.text.length + offset
+        }
+    }
+
+    data class Text(
+        val elements: MutableList<Element>,
+        override val offset: Int = 0
+    ) : MarkdownElement()
+
+    data class Image(
+        val image: Element.Image,
+        override val offset: Int = 0
+    ) : MarkdownElement()
+
+    data class Scroll(
+        val blockCode: Element.BlockCode,
+        override val offset: Int = 0
+    ) : MarkdownElement()
+}
 
 sealed class Element() {
     abstract val text: CharSequence
@@ -344,6 +382,18 @@ private fun Element.clearContent(): String {
         val element = this@clearContent
         if (element.elements.isEmpty()) append(element.text)
         else element.elements.forEach { append(it.clearContent()) }
+    }.toString()
+}
+
+fun List<MarkdownElement>.clearContent(): String {
+    return StringBuilder().apply {
+        this@clearContent.forEach {
+            when (it) {
+                is MarkdownElement.Text -> it.elements.forEach { el -> append(el.clearContent()) }
+                is MarkdownElement.Image -> append(it.image.clearContent())
+                is MarkdownElement.Scroll -> append(it.blockCode.clearContent())
+            }
+        }
     }.toString()
 }
 

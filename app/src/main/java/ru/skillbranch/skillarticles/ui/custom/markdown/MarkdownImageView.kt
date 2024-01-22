@@ -1,12 +1,8 @@
 package ru.skillbranch.skillarticles.ui.custom.markdown
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.view.ViewGroup
-import java.nio.charset.Charset
-import java.security.MessageDigest
-
-import android.annotation.SuppressLint;
 import android.graphics.Canvas
 import android.graphics.Outline
 import android.graphics.Paint
@@ -16,6 +12,7 @@ import android.text.Spannable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewAnimationUtils
+import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.widget.ImageView
 import android.widget.TextView
@@ -34,7 +31,8 @@ import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.dpToPx
 import ru.skillbranch.skillarticles.extensions.setPaddingOptionally
-import java.lang.Math.hypot
+import java.nio.charset.Charset
+import java.security.MessageDigest
 import kotlin.math.hypot
 
 @SuppressLint("ViewConstructor")
@@ -68,23 +66,27 @@ class MarkdownImageView private constructor(
 
     @Px
     private val titleTopMargin: Int = context.dpToIntPx(8)
+
     @Px
     private val titlePadding: Int = context.dpToIntPx(56)
+
     @Px
     private val cornerRadius: Float = context.dpToPx(4)
 
     @ColorInt
     private val colorSurface: Int =
 //        context.attrValue(R.attr.colorSurface)
-    context.attrValue(com.google.android.material.R.attr.colorSurface)
+        context.attrValue(com.google.android.material.R.attr.colorSurface)
+
     @ColorInt
     private val colorOnSurface: Int
     //= context.attrValue(R.attr.colorOnSurface)
-    = context.attrValue(com.google.android.material.R.attr.colorOnSurface)
+            = context.attrValue(com.google.android.material.R.attr.colorOnSurface)
+
     @ColorInt
     private val colorOnBackground: Int
-    = context.getColor(R.color.color_divider)
-    //= context.attrValue(R.attr.colorOnBackground)
+//    = context.getColor(R.color.color_divider)
+            = context.attrValue(com.google.android.material.R.attr.colorOnBackground)
 
     @ColorInt
     private var lineColor: Int = context.getColor(R.color.color_divider)
