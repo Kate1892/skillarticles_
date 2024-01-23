@@ -16,4 +16,6 @@ interface IArticleView {
     fun clearSearchResult()
     fun showSearchBar(resultsCount: Int, searchPosition: Int)
     fun hideSearchBar()
+
+    fun setupCopyListener()
 }

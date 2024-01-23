@@ -14,4 +14,8 @@
     <color name="color_divider">#1F000000</color>
     <color name="design_default_color_error">#D64141</color>
     <color name="opacity_color_surface">#9ca9ba</color>
+    <color name="darkSurfaceColor">#272727</color>
+    <color name="lightSurfaceColor">#F6F6F6</color>
+    <color name="darkOnSurfaceColor">#F6F6F6</color>
+    <color name="lightOnSurfaceColor">#202020</color>
 </resources>

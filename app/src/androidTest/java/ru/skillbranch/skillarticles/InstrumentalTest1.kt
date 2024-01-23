@@ -1,536 +1,574 @@
 package ru.skillbranch.skillarticles
 
-import android.graphics.*
-import android.graphics.drawable.VectorDrawable
-import android.text.Layout
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.text.SpannableString
-import android.text.Spanned
-import android.text.TextPaint
-import android.view.View.TEXT_DIRECTION_FIRST_STRONG
+import android.util.DisplayMetrics
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.TextView
+import androidx.core.text.buildSpannedString
+import androidx.core.text.getSpans
+import androidx.core.view.children
+import androidx.core.view.setPadding
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import junit.framework.Assert.assertEquals
-import org.junit.Assert
-import org.junit.Before
+import io.mockk.*
+import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
-import ru.skillbranch.skillarticles.markdown.spans.*
-import io.mockk.*
-import ru.skillbranch.skillarticles.ui.custom.spans.BlockquotesSpan
+import ru.skillbranch.skillarticles.data.longText
+import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
+import ru.skillbranch.skillarticles.data.repositories.clearContent
+import ru.skillbranch.skillarticles.extensions.dpToIntPx
+import ru.skillbranch.skillarticles.extensions.groupByBounds
+import ru.skillbranch.skillarticles.extensions.indexesOf
+import ru.skillbranch.skillarticles.ui.custom.markdown.*
 import ru.skillbranch.skillarticles.ui.custom.spans.HeaderSpan
-import ru.skillbranch.skillarticles.ui.custom.spans.HorizontalRuleSpan
-import ru.skillbranch.skillarticles.ui.custom.spans.IconLinkSpan
-import ru.skillbranch.skillarticles.ui.custom.spans.InlineCodeSpan
-import ru.skillbranch.skillarticles.ui.custom.spans.OrderedListSpan
-import ru.skillbranch.skillarticles.ui.custom.spans.UnderlineSpan
-import ru.skillbranch.skillarticles.ui.custom.spans.UnorderedListSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
+import java.lang.Thread.sleep
+
 
 /**
  * Instrumented test, which will execute on an Android device.
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-
 @RunWith(AndroidJUnit4::class)
 class InstrumentalTest1 {
+
     companion object {
         var scaledDensity: Float = 0f
+        var metrics: DisplayMetrics = DisplayMetrics()
 
         @BeforeClass
         @JvmStatic
         fun setupClass() {
-            scaledDensity =
-                ApplicationProvider.getApplicationContext<App>().resources.displayMetrics.scaledDensity
+            val ctx = ApplicationProvider.getApplicationContext<App>()
+            scaledDensity = ctx.resources.displayMetrics.scaledDensity
+            metrics = ctx.resources.displayMetrics
         }
-    }
-
-    //defaults
-    private val defaultColor = Color.GRAY
-    private val currentMargin = 0
-    private val lineTop = 0 //lineTop for line under test
-    private val lineBase = 14.dp() //lineBase for line under test
-    private val lineBottom = 20.dp() //lineBottom for line under test
-    private val defaultFontAscent = (-10).dp() //16sp fontsize
-    private val defaultFontDescent = (4).dp() //16sp fontsize
-    private val canvasWidth = 360.dp()
-
-    //mocks
-    private lateinit var canvas: Canvas
-    private lateinit var paint: Paint
-    private lateinit var layout: Layout
-
-    //text under test
-    private lateinit var text: SpannableString
-
-    //overwrite mocks before each test
-    @Before
-    fun setup() {
-        canvas = mockk(relaxed = true) { //overwrite only need functions other functions relaxed
-            every { getWidth() } returns canvasWidth
-        }
-        paint = mockk(relaxed = true) {
-            every { getColor() } returns defaultColor
-        }
-        layout = mockk(relaxed = true)
-
-        text = SpannableString("text")
     }
 
     @Test
-    fun unordered_list() {
-        //settings
-        val color = Color.RED
-        val gap = 8.dpf()
-        val radius = 4.dpf()
+    fun group_by_bounds() {
+        val query = "background"
+        val expectedResult: List<List<Pair<Int, Int>>> = listOf(
+            listOf(25 to 35, 92 to 102, 153 to 163),
+            listOf(220 to 230),
+            listOf(239 to 249),
+            listOf(330 to 340),
+            listOf(349 to 359),
+            listOf(421 to 431),
+            listOf(860 to 870, 954 to 964),
+            listOf(1084 to 1094),
+            listOf(1209 to 1219, 1355 to 1365, 1795 to 1805),
+            listOf(),
+            listOf(
+                2115 to 2125,
+                2357 to 2367,
+                2661 to 2671,
+                2807 to 2817,
+                3314 to 3324,
+                3348 to 3358,
+                3423 to 3433,
+                3623 to 3633,
+                3711 to 3721,
+                4076 to 4086
+            ),
+            listOf(),
+            listOf(5766 to 5776, 5897 to 5907, 5939 to 5949),
+            listOf(),
+            listOf(),
+            listOf(),
+            listOf(),
+            listOf(),
+            listOf()
+        )
+        val rawContent = MarkdownParser.parse(longText)
 
-        //set span on text
-        val span = UnorderedListSpan(gap, radius, color)
-        text.setSpan(span, 0, 0, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val bounds = rawContent.map { it.bounds }
 
-        //check leading margin
-        assertEquals((4 * radius + gap).toInt(), span.getLeadingMargin(true))
+        val searchResult = rawContent.clearContent()
+            .indexesOf(query)
+            .map { it to it + query.length }
+
+        val result = searchResult.groupByBounds(bounds)
+
+        assertEquals(expectedResult, result)
+    }
+
+    @Test
+    fun draw_search_background() {
+        val testViewId = 100
+
+        val string = buildSpannedString {
+            append(
+                "Header1 for first line, and for second line also header for , third line",
+                HeaderSpan(1, Color.BLACK, Color.GRAY, 12.dpf(), 8.dpf()),
+                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            append("\nsimple text on line")
+        }
+        val mockDrawable = mockk<Drawable>(relaxed = true)
+        val mockLeftDrawable = mockk<Drawable>(relaxed = true)
+        val mockMiddleDrawable = mockk<Drawable>(relaxed = true)
+        val mockRightDrawable = mockk<Drawable>(relaxed = true)
 
 
-        //bullet draw
-        span.drawLeadingMargin(
-            canvas, paint, currentMargin, TEXT_DIRECTION_FIRST_STRONG,
-            lineTop, lineBase, lineBottom, text, 0, text.length,
-            true, layout
+        val scenario = launchFragmentInContainer<TestFragment>(themeResId = R.style.AppTheme)
+        //single line
+        scenario.onFragment {
+            val container = it.requireView() as FrameLayout
+            val helper = SearchBgHelper(
+                it.requireContext(),
+                { top: Int, bot: Int -> /* nothing */ },
+                mockDrawable,
+                mockLeftDrawable,
+                mockMiddleDrawable,
+                mockRightDrawable
+            )
+            val mv = MarkdownTextView(it.requireContext(), 14f).apply {
+                searchBgHelper = helper
+                setText(string, TextView.BufferType.SPANNABLE)
+                setPadding(it.requireContext().dpToIntPx(8))
+                renderSearchResult(listOf(0 to 11), 0)
+                id = testViewId
+            }
+            container.addView(mv)
+        }
+        sleep(2000)
+
+        val singleBounds = mutableListOf<Int>()
+        verifyOrder {
+            mockDrawable.setBounds(
+                capture(singleBounds),
+                capture(singleBounds),
+                capture(singleBounds),
+                capture(singleBounds)
+            )
+            mockDrawable.draw(any())
+        }
+
+        assertEquals(
+            "single line drawable setBounds ",
+            "left: ${(-4).dp()}, top: ${12.dp()}, right: ${152.dp()}, bottom : ${45.dp()}",
+            "left: ${singleBounds[0]}, top: ${singleBounds[1]}, right: ${singleBounds[2]}, bottom : ${singleBounds[3]}"
         )
 
-        //check order call
-        verifyOrder {
-            //check first set color to paint
-            paint.color = color
-            //check draw circle bullet
-            canvas.drawCircle(
-                gap + currentMargin + radius,
-                (lineTop + lineBottom) / 2f,
-                radius, paint
-            )
-            //check paint color restore
-            paint.color = defaultColor
+        //multi line
+        scenario.onFragment {
+            val mv = it.requireView().findViewById<MarkdownTextView>(testViewId)
+            mv.renderSearchResult(listOf(26 to 66), 0)
         }
-    }
 
-    @Test
-    fun ordered_list() {
-        //settings
-        val color = Color.RED
-        val gap = 12.dpf()
-        val order = "1"
+        sleep(2000)
 
-        //set span on text
-        val span = OrderedListSpan(gap, order, color)
-        text.setSpan(span, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        //check leading margin
-        Assert.assertEquals((order.length.inc() * gap).toInt(), span.getLeadingMargin(true))
-
-        //check bullet draw
-        span.drawLeadingMargin(
-            canvas, paint, currentMargin, TEXT_DIRECTION_FIRST_STRONG,
-            lineTop, lineBase, lineBottom, text, 0, text.length,
-            true, layout
+        val multiBounds = mutableListOf<Int>()
+        verifyOrder {
+            mockLeftDrawable.setBounds(
+                capture(multiBounds),
+                capture(multiBounds),
+                capture(multiBounds),
+                capture(multiBounds)
+            )
+            mockLeftDrawable.draw(any())
+        }
+        assertEquals(
+            "first line drawable setBounds",
+            "left: ${294.dp()}, top: ${12.dp()}, right: ${360.dp()}, bottom : ${45.dp()}",
+            "left: ${multiBounds[0]}, top: ${multiBounds[1]}, right: ${multiBounds[2]}, bottom : ${multiBounds[3]}"
         )
 
-        //check order call
+        multiBounds.clear()
         verifyOrder {
-            //check first set color to paint
-            paint.color = color
-
-            //check draw order bullet
-            canvas.drawText(
-                order,
-                currentMargin + gap,
-                lineBase.toFloat(),
-                paint
+            mockMiddleDrawable.setBounds(
+                capture(multiBounds),
+                capture(multiBounds),
+                capture(multiBounds),
+                capture(multiBounds)
             )
-
-            //check paint color restore
-            paint.color = defaultColor
+            mockMiddleDrawable.draw(any())
         }
-    }
 
-    @Test
-    fun draw_quote() {
-        //settings
-        val color = Color.RED
-        val gap = 8.dpf()
-        val lineWidth = 4.dpf()
-
-        val span = BlockquotesSpan(gap, lineWidth, color)
-        text.setSpan(span, 0, 0, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-        //check leading margin
-        assertEquals((lineWidth + gap).toInt(), span.getLeadingMargin(true))
-
-        //check line draw
-        span.drawLeadingMargin(
-            canvas, paint, currentMargin, TEXT_DIRECTION_FIRST_STRONG,
-            lineTop, lineBase, lineBottom, text, 0, text.length,
-            true, layout
+        assertEquals(
+            "middle line drawable setBounds",
+            "left: ${(-4).dp()}, top: ${53.dp()}, right: ${354.dp()}, bottom : ${86.dp()}",
+            "left: ${multiBounds[0]}, top: ${multiBounds[1]}, right: ${multiBounds[2]}, bottom : ${multiBounds[3]}"
         )
 
-        //check order call
+        multiBounds.clear()
         verifyOrder {
-            //check first set color to painyt
-            paint.color = color
-            paint.strokeWidth = lineWidth
-            //check draw line
-            canvas.drawLine(
-                lineWidth / 2f,
-                lineTop.toFloat(),
-                lineWidth / 2,
-                lineBottom.toFloat(),
-                paint
+            mockRightDrawable.setBounds(
+                capture(multiBounds),
+                capture(multiBounds),
+                capture(multiBounds),
+                capture(multiBounds)
             )
+            mockRightDrawable.draw(any())
+        }
+        assertEquals(
+            "last line drawable setBounds",
+            "left: ${(-4).dp()}, top: ${94.dp()}, right: ${45.dp()}, bottom : ${127.dp()}",
+            "left: ${multiBounds[0]}, top: ${multiBounds[1]}, right: ${multiBounds[2]}, bottom : ${multiBounds[3]}"
+        )
 
-            //check paint color restore
-            paint.color = defaultColor
+        //simple text
+        scenario.onFragment {
+            val mv = it.requireView().findViewById<MarkdownTextView>(testViewId)
+            mv.renderSearchResult(listOf(79 to 87), 0)
+        }
+        sleep(2000)
+        singleBounds.clear()
+        verifyOrder {
+            mockDrawable.setBounds(
+                capture(singleBounds),
+                capture(singleBounds),
+                capture(singleBounds),
+                capture(singleBounds)
+            )
+            mockDrawable.draw(any())
         }
 
-    }
-
-    @Test
-    fun draw_header() {
-        //settings
-        val levels = 1..6
-        val textColor = Color.RED
-        val lineColor = Color.GREEN
-        val marginTop = 12.dpf()
-        val marginBottom = 8.dpf()
-
-        //mocks
-        val measurePaint = mockk<TextPaint>(relaxed = true)
-        val drawPaint = mockk<TextPaint>(relaxed = true)
-        val fm = Paint.FontMetricsInt()
-
-        for (level in levels) {
-
-            val span = HeaderSpan(level, textColor, lineColor, marginTop, marginBottom)
-            text.setSpan(span, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-            //check leading margin
-            assertEquals(0, span.getLeadingMargin(true))
-
-            //check measure state
-            span.updateMeasureState(measurePaint)
-            verifyAll {
-                measurePaint.textSize *= span.sizes[level]!!
-                measurePaint.isFakeBoldText = true
-            }
-
-            //check draw state
-            span.updateDrawState(drawPaint)
-            verifyAll {
-                drawPaint.textSize *= span.sizes[level]!!
-                drawPaint.isFakeBoldText = true
-                drawPaint.color = textColor
-            }
-
-            //check change line height
-            fm.ascent = defaultFontAscent
-            fm.descent = defaultFontDescent
-
-            span.chooseHeight(text, 0, text.length.inc(), 0, 0, fm)
-            //check top
-            assertEquals((defaultFontAscent - marginTop).toInt(), fm.ascent)
-            //check bottom
-            assertEquals(
-                ((defaultFontDescent - defaultFontAscent) * span.linePadding + marginBottom).toInt(),
-                fm.descent
-            )
-
-            assertEquals(fm.top, fm.ascent)
-            assertEquals(fm.bottom, fm.descent)
-
-            //check line draw
-            span.drawLeadingMargin(
-                canvas, paint, currentMargin, TEXT_DIRECTION_FIRST_STRONG,
-                lineTop, lineBase, lineBottom, text, 0, text.length,
-                true, layout
-            )
-
-            //check draw line for first, second level header
-            if (level == 1 || level == 2) {
-                val lh = (paint.descent() - paint.ascent()) * span.sizes[level]!!
-                val lineOffset = lineBase + lh * span.linePadding
-
-                verifyOrder {
-                    //check set line color
-                    paint.color = lineColor
-                    //check draw line under header
-                    canvas.drawLine(0f, lineOffset, canvasWidth.toFloat(), lineOffset, paint)
-                    //check restore paint color
-                    paint.color = defaultColor
-                }
-
-            }
-
-        }
-
+        assertEquals(
+            "simple text drawable setBounds ",
+            "left: ${(38).dp()}, top: ${149.dp()}, right: ${92.dp()}, bottom : ${165.5f.dp()}",
+            "left: ${singleBounds[0]}, top: ${singleBounds[1]}, right: ${singleBounds[2]}, bottom : ${singleBounds[3]}"
+        )
     }
 
 
     @Test
-    fun draw_rule() {
-        //settings
-        val color = Color.RED
-        val width = 2.dpf()
+    fun draw_markdown_image_view() {
 
-        val span = HorizontalRuleSpan(width, color)
-        text.setSpan(span, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        var viewUnderTest: MarkdownImageView? = null
 
-        //check draw rule line
-        span.draw(
-            canvas,
-            text,
+        val scenario = launchFragmentInContainer<TestFragment>(themeResId = R.style.AppTheme)
+        val bounds = mutableListOf<Int>()
+
+        scenario.onFragment() {
+            viewUnderTest = spyk(
+                MarkdownImageView(it.requireContext(), 14f, "any", "title", "alt title"),
+                recordPrivateCalls = true
+            )
+            viewUnderTest!!.ivImage.setImageDrawable(
+                it.requireContext().getDrawable(R.drawable.logo)
+            )
+            val container = it.requireView() as FrameLayout
+            container.addView(viewUnderTest)
+
+
+        }
+        sleep(2000)
+        verifyOrder {
+            viewUnderTest!!.onMeasure(any(), any())
+            viewUnderTest!!.onLayout(
+                any(),
+                capture(bounds),
+                capture(bounds),
+                capture(bounds),
+                capture(bounds)
+            )
+            viewUnderTest!!.dispatchDraw(any())
+        }
+
+        assertEquals(
+            "MarkdownImageView onLayout ",
+            "left: 0, top: 0, right: ${384.dp()}, bottom : ${362.5f.dp()}",
+            "left: ${bounds[0]}, top: ${bounds[1]}, right: ${bounds[2]}, bottom : ${bounds[3]}"
+        )
+
+        assertEquals(
+            "markdown view measure width",
+            384.dpf(),
+            viewUnderTest!!.measuredWidth.toFloat(),
+            scaledDensity
+        )
+        assertEquals(
+            "markdown view measure height",
+            362.dpf(),
+            viewUnderTest!!.measuredHeight.toFloat(),
+            scaledDensity
+        )
+
+        assertEquals(
+            "ivImage view bounds",
+            "view ${viewUnderTest!!.ivImage::class.simpleName} has bounds left:0, top:0, right:${384.dp()}, bottom:${340.dp()}",
+            viewUnderTest!!.ivImage.viewBounds(),
+        )
+
+        assertEquals(
+            "tvAlt view bounds",
+            "view ${viewUnderTest!!.tvAlt!!::class.simpleName} has bounds left:0, top:${305.dp()}, right:${384.dp()}, bottom:${340.dp()}",
+            viewUnderTest!!.tvAlt!!.viewBounds(),
+        )
+
+        assertEquals(
+            "tvTitle view bounds",
+            "view ${viewUnderTest!!.tvTitle::class.simpleName} has bounds left:0, top:${348.dp()}, right:${384.dp()}, bottom:${362.5f.dp()}",
+            viewUnderTest!!.tvTitle.viewBounds(),
+        )
+
+
+        val mockCanvas = mockk<Canvas>(relaxed = true) {
+            every { getWidth() } returns 384.dp()
+        }
+
+        val lineLeft = mutableListOf<Float>()
+        val lineRight = mutableListOf<Float>()
+
+        viewUnderTest!!.dispatchDraw(mockCanvas)
+        verifyOrder {
+            mockCanvas.drawLine(
+                capture(lineLeft),
+                capture(lineLeft),
+                capture(lineLeft),
+                capture(lineLeft),
+                any()
+            )
+            mockCanvas.drawLine(
+                capture(lineRight),
+                capture(lineRight),
+                capture(lineRight),
+                capture(lineRight),
+                any()
+            )
+        }
+
+        assertEquals(
+            "markdown view draw left decor line",
+            "left: 0.0, top: ${355.25f.dpf()}, right: ${56f.dpf()}, bottom : ${355.25f.dpf()}",
+            "left: ${lineLeft[0]}, top: ${lineLeft[1]}, right: ${lineLeft[2]}, bottom : ${lineLeft[3]}"
+        )
+
+        assertEquals(
+            "markdown view draw right decor line",
+            "left: ${328f.dpf()}, top: ${355.25f.dpf()}, right: ${384f.dpf()}, bottom : ${355.25f.dpf()}",
+            "left: ${lineRight[0]}, top: ${lineRight[1]}, right: ${lineRight[2]}, bottom : ${lineRight[3]}"
+        )
+    }
+
+    @Test
+    fun draw_markdown_scroll_view() {
+
+        val testViewId = 100
+        var viewUnderTest: MarkdownCodeView? = null
+
+        val scenario = launchFragmentInContainer<TestFragment>(themeResId = R.style.AppTheme)
+        scenario.onFragment {
+            viewUnderTest = spyk(MarkdownCodeView(it.requireContext(), 14f, "any code"))
+            viewUnderTest!!.id = testViewId
+            val container = it.requireView() as FrameLayout
+            container.addView(viewUnderTest)
+        }
+        sleep(2000)
+
+        verifyOrder {
+            viewUnderTest!!.onMeasure(any(), any())
+            viewUnderTest!!.onLayout(any(), 0, 0, 384.dp(), 32.5f.dp())
+        }
+
+        assertEquals("markdown view measure width", 384.dp(), viewUnderTest!!.measuredWidth)
+        assertEquals("markdown view measure height", 32.5f.dp(), viewUnderTest!!.measuredHeight)
+        assertEquals(
+            "markdown scroll measure height",
+            16.5f.dp(),
+            viewUnderTest!!.svScroll.measuredHeight
+        )
+
+        assertEquals(
+            "ivSwitch view bounds",
+            "view ${viewUnderTest!!.ivSwitch::class.simpleName} has bounds left:${346.dp()}, top:${10.dp()}, right:${358.dp()}, bottom:${22.dp()}",
+            viewUnderTest!!.ivSwitch.viewBounds(),
+        )
+
+        assertEquals(
+            "ivCopy view bounds",
+            "view ${viewUnderTest!!.ivCopy::class.simpleName} has bounds left:${364.dp()}, top:${10.dp()}, right:${376.dp()}, bottom:${22.dp()}",
+            viewUnderTest!!.ivCopy.viewBounds(),
+        )
+
+        scenario.onFragment {
+            val cv = it.requireView().findViewById<MarkdownCodeView>(testViewId)
+            val container = it.requireView() as FrameLayout
+            container.removeView(cv)
+            viewUnderTest =
+                spyk(MarkdownCodeView(it.requireContext(), 14f, "first line\nsecond line"))
+            container.addView(viewUnderTest)
+        }
+        sleep(2000)
+        verifyOrder {
+            viewUnderTest!!.onMeasure(any(), any())
+            viewUnderTest!!.onLayout(any(), 0, 0, 384.dp(), 46.5f.dp())
+        }
+
+        assertEquals("markdown view measure width", 384.dp(), viewUnderTest!!.measuredWidth)
+        assertEquals("markdown view measure height", 46.5f.dp(), viewUnderTest!!.measuredHeight)
+        assertEquals(
+            "markdown scroll measure height",
+            30.5f.dp(),
+            viewUnderTest!!.svScroll.measuredHeight
+        )
+
+        assertEquals(
+            "ivSwitch view bounds",
+            "view ${viewUnderTest!!.ivSwitch::class.simpleName} has bounds left:${346.dp()}, top:${8.dp()}, right:${358.dp()}, bottom:${20.dp()}",
+            viewUnderTest!!.ivSwitch.viewBounds(),
+        )
+
+        assertEquals(
+            "ivCopy view bounds",
+            "view ${viewUnderTest!!.ivCopy::class.simpleName} has bounds left:${364.dp()}, top:${8.dp()}, right:${376.dp()}, bottom:${20.dp()}",
+            viewUnderTest!!.ivCopy.viewBounds(),
+        )
+    }
+
+    @Test
+    fun draw_markdown_content_view() {
+        val string = """
+    ### Finding out where the background should be drawn
+    We specify parts of the text that should have a background by using `Annotation` spans in our string resources. Find out more about working with Annotation spans from [this article](https://medium.com/google-developers/styling-internationalized-text-in-android-f99759fb7b8f).
+
+    We created a `SearchBgHelper` class that:
+
+    * Enables us to position the background based on the text directionality: left-to-right or right-to-left
+    * Renders the background, based on the drawables and the horizontal and vertical padding
+
+    In the `SearchBgHelper.draw` method, for every `Annotation` span found in the text, we get the start and end index of the span, find the line number for each and then compute the start and end character offset (within the line). Then, we use the `SearchBgRenderer` implementations to render the background.
+    ```fun draw(canvas: Canvas, text: Spanned, layout: Layout) {
+        // ideally the calculations here should be cached since
+        // they are not cheap. However, proper
+        // invalidation of the cache is required whenever
+        // anything related to text has changed.
+        val spans = text.getSpans(0, text.length, Annotation::class.java)
+        spans.forEach { span ->
+            if (span.value.equals("rounded")) {
+                val spanStart = text.getSpanStart(span)
+                val spanEnd = text.getSpanEnd(span)
+                val startLine = layout.getLineForOffset(spanStart)
+                val endLine = layout.getLineForOffset(spanEnd)
+
+                // start can be on the left or on the right depending
+                // on the language direction.
+                val startOffset = (layout.getPrimaryHorizontal(spanStart)
+                    + -1 * layout.getParagraphDirection(startLine) * horizontalPadding).toInt()
+                // end can be on the left or on the right depending
+                // on the language direction.
+                val endOffset = (layout.getPrimaryHorizontal(spanEnd)
+                    + layout.getParagraphDirection(endLine) * horizontalPadding).toInt()
+
+                val renderer = if (startLine == endLine) singleLineRenderer else multiLineRenderer
+                renderer.draw(canvas, layout, startLine, endLine, startOffset, endOffset)
+            }
+        }
+    }```
+    ### Provide drawables as attributes
+    To easily supply drawables for different `TextViews` in our app, we define 4 custom attributes corresponding to the drawables and 2 attributes for the horizontal and vertical padding. We created a `TextRoundedBgAttributeReader` class that reads these attributes from the xml layout.
+    ### Render the background drawable(s)
+    Once we have the drawables we need to draw them. For that, we need to know:
+
+    * The start and end line for the background
+    * The character offset where the background should start and end at.
+
+    We created an abstract class `SearchBgRenderer` that knows how to compute the top and the bottom offset of the line, but exposes an abstract `draw` function:
+    ```abstract fun draw(canvas: Canvas,layout: Layout,startLine: Int,endLine: Int,startOffset: Int,endOffset: Int)```
+    The `draw` function will have different implementations depending on whether our text spans a single line or multiple lines. Both of the implementations work on the same principle: based on the line top and bottom, set the bounds of the drawable and render it on the canvas.
+
+    The single line implementation only needs to draw one drawable.
+    ![Single line text with search rounded background](https://miro.medium.com/max/1155/0*HS6zOL8stqjTodpJ "Single line text")
+            """.trimIndent()
+
+        val testViewId = 100
+
+        val content = MarkdownParser.parse(string)
+        var viewUnderTest: MarkdownContentView? = null
+        val scenario = launchFragmentInContainer<TestFragment>(themeResId = R.style.AppTheme)
+        scenario.onFragment {
+            viewUnderTest = spyk(MarkdownContentView(it.requireContext(), null, 0))
+            viewUnderTest!!.id = testViewId
+            viewUnderTest!!.setCopyListener { }
+            viewUnderTest!!.setContent(content)
+            val container = it.requireView() as FrameLayout
+            container.addView(viewUnderTest)
+        }
+        sleep(2000)
+
+        assertEquals("markdown scroll measure width", 384.dp(), viewUnderTest!!.measuredWidth)
+        assertEquals("markdown view measure height", 1794.5f.dp(), viewUnderTest!!.measuredHeight)
+        assertEquals("markdown content child count", 6, viewUnderTest!!.childCount)
+        assertEquals(
+            "markdown content code view count",
+            2,
+            viewUnderTest!!.children.filterIsInstance<MarkdownCodeView>().toList().size
+        )
+        assertEquals(
+            "markdown content text view count",
+            3,
+            viewUnderTest!!.children.filterIsInstance<MarkdownTextView>().toList().size
+        )
+        assertEquals(
+            "markdown content image view count",
+            1,
+            viewUnderTest!!.children.filterIsInstance<MarkdownImageView>().toList().size
+        )
+
+        scenario.onFragment {
+            val vat = it.requireView().findViewById<MarkdownContentView>(testViewId)
+            vat.renderSearchResult(listOf(50 to 60))
+        }
+        sleep(2000)
+        val markdownTextView = viewUnderTest!!.getChildAt(0) as MarkdownTextView
+        val spansSearch = markdownTextView.spannableContent.getSpans<SearchSpan>()
+        val start = markdownTextView.spannableContent.getSpanStart(spansSearch.first())
+        val end = markdownTextView.spannableContent.getSpanEnd(spansSearch.first())
+        assertEquals("markdown renderSearchResult", "start: 50 end: 60", "start: $start end: $end")
+
+        scenario.onFragment {
+            val vat = it.requireView().findViewById<MarkdownContentView>(testViewId)
+            vat.clearSearchResult()
+        }
+        sleep(2000)
+        val spans = markdownTextView.spannableContent.getSpans(
             0,
-            text.length,
-            currentMargin.toFloat(),
-            lineTop,
-            lineBase,
-            lineBottom,
-            paint
+            markdownTextView.spannableContent.length,
+            SearchSpan::class.java
         )
-
-        //verify order call
-        verifyOrder {
-            //check set rule color
-            paint.color = color
-            //check draw line
-            canvas.drawLine(
-                0f,
-                (lineTop + lineBottom) / 2f,
-                canvasWidth.toFloat(),
-                (lineTop + lineBottom) / 2f,
-                paint
-            )
-            //check paint color restore
-            paint.color = defaultColor
-
-        }
-
+        assertEquals(
+            "markdown clearSearchResult",
+            "search span count 0",
+            "search span count ${spans.size}"
+        )
     }
 
-    @Test
-    fun draw_inline_code() {
-        //settings
-        val textColor = Color.RED
-        val bgColor = Color.GREEN
-        val cornerRadius = 8.dpf()
-        val padding = 8.dpf()
-        val measureText = 100f
+    private fun Int.dp() =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
 
-        //mocks
-        every { paint.measureText(any<String>(), any(), any()) } returns measureText
+    private fun Int.dpf() =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), metrics)
 
-        val fm = Paint.FontMetricsInt()
+    private fun Float.dp() =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, metrics).toInt()
 
-        val span = InlineCodeSpan(textColor, bgColor, cornerRadius, padding)
-        text.setSpan(span, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+    private fun Float.dpf() =
+        TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this, metrics)
 
-        //check span size
-        val size = span.getSize(paint, text, 0, text.length, fm)
-        assertEquals((2 * padding + measureText).toInt(), size)
+    private fun View.viewBounds() =
+        "view ${this::class.simpleName} has bounds left:${this.left}, top:${this.top}, right:${this.right}, bottom:${this.bottom}"
 
-        //check draw inline code
-        span.draw(
-            canvas,
-            text,
-            0,
-            text.length,
-            currentMargin.toFloat(),
-            lineTop,
-            lineBase,
-            lineBottom,
-            paint
-        )
+}
 
-        //check call order
-        verifyOrder {
-            //check first set color to paint for background
-            paint.color = bgColor
-            //check draw background
-            canvas.drawRoundRect(
-                RectF(
-                    0f,
-                    lineTop.toFloat(),
-                    measureText + 2 * padding,
-                    lineBottom.toFloat()
-                ),
-                cornerRadius, cornerRadius,
-                paint
-            )
-
-            //check set text color
-            paint.color = textColor
-            //check draw text
-            canvas.drawText(
-                text, 0, text.length, currentMargin + padding,
-                lineBase.toFloat(),
-                paint
-            )
-
-            //check paint color restore
-            paint.color = defaultColor
-        }
-
-    }
-
-    @Test
-    fun draw_link() {
-        //settings
-        val gap = 8.dpf()
-        val textColor = Color.BLUE
-        val dotWidth = 4.dpf()
-
-        //defaults
-        val fm = Paint.FontMetricsInt()
-        fm.ascent = defaultFontAscent
-        fm.descent = defaultFontDescent
-        val measureText = 100f
-
-        //mocks
-        every { paint.measureText(any<String>(), any(), any()) } returns measureText
-
-        //spy
-        val linkDrawable = spyk(VectorDrawable()) {
-            every { draw(canvas) } answers {} //Unit do nothing if draw on canvas in spy object
-        }
-        val path = spyk(Path())
-
-        val span = IconLinkSpan(linkDrawable, gap, textColor, dotWidth)
-        text.setSpan(span, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        //setter for mock path
-        span.path = path
-
-        //check measure size
-        val size = span.getSize(paint, text, 0, text.length, fm)
-        val iconSize = defaultFontDescent - defaultFontAscent
-        assertEquals((iconSize + gap + measureText).toInt(), size)
-
-        //check drawable set bounds
-        verify {
-            linkDrawable.setBounds(
-                0,
-                0,
-                iconSize,
-                iconSize
-            )
-        }
-
-        //check draw icon
-        span.draw(
-            canvas, text, 0, text.length, currentMargin.toFloat(),
-            lineTop, lineBase, lineBottom,
-            paint
-        )
-
-        //check path effect
-        verifyOrder {
-            paint.pathEffect = any()
-            paint.strokeWidth = 0f
-            paint.color = textColor
-        }
-
-        //check reset path and draw line under text
-        verifyOrder {
-            path.reset()
-            path.moveTo(currentMargin + iconSize + gap, lineBottom.toFloat())
-            path.lineTo(currentMargin + iconSize + gap + measureText, lineBottom.toFloat())
-            canvas.drawPath(path, paint)
-        }
-
-        //check draw icon
-        verifyOrder {
-            canvas.save()
-            canvas.translate(
-                currentMargin + gap / 2f,
-                lineBottom - linkDrawable.bounds.bottom.toFloat()
-            )
-            linkDrawable.draw(canvas)
-            canvas.restore()
-        }
-
-        //check draw text
-        verifyOrder {
-            //set text color
-            paint.color = textColor
-            //check draw text
-            canvas.drawText(
-                text, 0, text.length,
-                currentMargin + iconSize + gap,
-                lineBase.toFloat(),
-                paint
-            )
-            //check restore color
-            paint.color = defaultColor
-        }
-
-
-    }
-
-    @Test
-    fun under_line() {
-        //settings
-        val textColor = Color.BLUE
-        val dotWidth = 4.dpf()
-
-        //defaults
-        val fm = Paint.FontMetricsInt()
-        fm.ascent = defaultFontAscent
-        fm.descent = defaultFontDescent
-        val measureText = 100f
-
-        //mocks
-        every { paint.measureText(any<String>(), any(), any()) } returns measureText
-
-        val path = spyk(Path())
-
-        val span = UnderlineSpan(textColor, dotWidth)
-        span.path = path
-        text.setSpan(span, 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-
-
-        //check measure size
-        val size = span.getSize(paint, text, 0, text.length, fm)
-        assertEquals((measureText).toInt(), size)
-
-        //check draw icon
-        span.draw(
-            canvas, text, 0, text.length, currentMargin.toFloat(),
-            lineTop, lineBase, lineBottom,
-            paint
-        )
-        //check reset path and draw line under text
-        verifyOrder {
-            paint.pathEffect = any()
-            paint.color = textColor
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 0f
-
-            path.reset()
-            path.moveTo(currentMargin.toFloat(), lineBottom.toFloat())
-            path.lineTo(currentMargin + measureText, lineBottom.toFloat())
-            canvas.drawPath(path, paint)
-
-            //check restore color
-            paint.color = defaultColor
-            //check draw text
-            canvas.drawText(
-                text, 0, text.length,
-                currentMargin.toFloat(),
-                lineBase.toFloat(),
-                paint
-            )
-
-        }
-    }
-
-
-    private fun Int.dp() = (this * scaledDensity).toInt()
-    private fun Int.dpf() = this * scaledDensity
+class TestFragment() : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = FrameLayout(requireContext())
 }

@@ -25,7 +25,7 @@ class MarkdownTextView(
     private val searchPadding = context.dpToPx(56)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    private val searchBgHelper = SearchBgHelper(context) { top, bottom ->
+    var searchBgHelper = SearchBgHelper(context) { top, bottom ->
         focusRect.set(0, top - searchPadding.toInt(), width, bottom + searchPadding.toInt())
 
         requestRectangleOnScreen(focusRect, false)

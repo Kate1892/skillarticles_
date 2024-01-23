@@ -11,20 +11,12 @@ object MarkdownParser {
     private const val ITALIC_GROUP = "((?<!\\*)\\*[^*].*?[^*]?\\*(?!\\*)|(?<!_)_[^_].*?[^_]?_(?!_))"
     private const val BOLD_GROUP =
         "((?<!\\*)\\*{2}[^*].*?[^*]?\\*{2}(?!\\*)|(?<!_)_{2}[^_].*?[^_]?_{2}(?!_))"
-
-    //    private const val STRIKE_GROUP = "((?<!\\*)\\~{2}[^~].*?[^~]?\\~{2}(?!\\*))"
     private const val STRIKE_GROUP = "(~~.+?~~)"
     private const val RULE_GROUP = "(^[-_*]{3}$)"
     private const val LINK_GROUP = "(\\[[^\\[\\]]*?]\\(.+?\\)|^\\[*?]\\(.*?\\))"
-
-    //    private const val ORDERED_LIST_ITEM_GROUP = "(^\\d+\\. .+\$)"
     private const val ORDERED_LIST_ITEM_GROUP = "(^\\d{1,2}\\.\\s.+$)" // 11
     private const val INLINE_GROUP = "((?<!`)`[^`\\s].*?[^`\\s]?`(?!`))"
-
-    //    private const val BLOCK_GROUP = "((?<!`)`{3}[^` \\\\s][\\w|\\W]*?[^`\\\\s]?`{3}(?!`))"
     private const val BLOCK_GROUP = "(^```[\\s\\S]+?```$)" // 10
-
-    //    private const val IMAGE_GROUP = "(\\!\\[[^\\[\\]]*?]\\(.+?\\))"
     private const val IMAGE_GROUP = "(^!\\[[^\\[\\]]*?\\]\\(.*?\\)$)" // 12
 
 

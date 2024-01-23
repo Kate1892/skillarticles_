@@ -86,8 +86,11 @@ interface IArticleViewModel {
      * переместиться к предидущему совпадению поиска
      */
     fun handleUpResult()
+
     /**
      * переместиться к следующему совпадению поиска
      */
     fun handleDownResult()
+
+    fun handleCopyCode()
 }

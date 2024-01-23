@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.text.Layout
 import android.text.Spanned
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.ColorUtils
 import androidx.core.text.getSpans
@@ -46,7 +45,7 @@ class SearchBgHelper(
     private val borderWidth: Int = context.dpToIntPx(1)
     private val radius: Float = context.dpToPx(8)
 
-    private val secondaryColor: Int = context.getColor(R.color.color_accent)
+    private val secondaryColor: Int = context.attrValue(com.google.android.material.R.attr.colorSecondary)
     private val alphaColor: Int = ColorUtils.setAlphaComponent(secondaryColor, 160)
 
     private val drawable: Drawable = mockDrawable ?: GradientDrawable().apply {
@@ -56,7 +55,7 @@ class SearchBgHelper(
         setStroke(borderWidth, secondaryColor)
     }
 
-    private val drawableLeft: Drawable = mockDrawable ?: GradientDrawable().apply {
+    private val drawableLeft: Drawable = mockDrawableLeft ?: GradientDrawable().apply {
         shape = GradientDrawable.RECTANGLE
         cornerRadii = floatArrayOf(
             radius, radius,
@@ -69,13 +68,13 @@ class SearchBgHelper(
         setStroke(borderWidth, secondaryColor)
     }
 
-    private val drawableMiddle: Drawable = mockDrawable ?: GradientDrawable().apply {
+    private val drawableMiddle: Drawable = mockDrawableMiddle ?: GradientDrawable().apply {
         shape = GradientDrawable.RECTANGLE
         color = ColorStateList.valueOf(alphaColor)
         setStroke(borderWidth, secondaryColor)
     }
 
-    private val drawableRight: Drawable = mockDrawable ?: GradientDrawable().apply {
+    private val drawableRight: Drawable = mockDrawableRight ?: GradientDrawable().apply {
         shape = GradientDrawable.RECTANGLE
         cornerRadii = floatArrayOf(
             0f, 0f,
@@ -122,12 +121,15 @@ class SearchBgHelper(
                 focusListener(layout.getLineTop(startLine), layout.getLineBottom(endLine))
             }
 
-//            if(headerSpans.isNotEmpty()) {
-//                headerSpans[0].run {
-//                    this@SearchBgHelper.topExtraPadding =
-//                        if(spanStart in firstL)
-//                }
-//            }
+            if (headerSpans.isNotEmpty()) {
+                headerSpans[0].run {
+                    this@SearchBgHelper.topExtraPadding =
+                        if (spanStart in firstLineBounds || spanEnd in firstLineBounds) topExtraPadding else 0
+
+                    this@SearchBgHelper.bottomExtraPadding =
+                        if (spanStart in lastLineBounds || spanEnd in lastLineBounds) bottomExtraPadding else 0
+                }
+            }
 
             startOffset = layout.getPrimaryHorizontal(spanStart).toInt()
             endOffset = layout.getPrimaryHorizontal(spanEnd).toInt()

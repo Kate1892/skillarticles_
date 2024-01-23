@@ -83,6 +83,15 @@ dependencies {
     androidTestImplementation("io.mockk:mockk-android:1.11.0")
 
     testImplementation("com.github.tmurakami:dexopener:2.0.5")
-    androidTestImplementation("com.github.tmurakami:dexopener:2.0.5")
 
+    testImplementation("junit:junit:4.13.2")
+    debugImplementation("androidx.test.ext:junit:1.1.5")
+    debugImplementation("androidx.fragment:fragment-testing:1.6.2")
+    debugImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    debugImplementation("androidx.test:core:1.5.0")
+    debugImplementation("androidx.test:runner:1.5.2")
+    debugImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("com.jraska.livedata:testing-ktx:1.3.0")
+    androidTestImplementation("android.arch.core:core-testing:1.1.1")
+    androidTestImplementation("com.github.tmurakami:dexopener:2.0.5")
 }

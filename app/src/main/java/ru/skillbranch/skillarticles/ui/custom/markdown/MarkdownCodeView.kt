@@ -12,9 +12,14 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.annotation.VisibleForTesting
+import androidx.core.view.setPadding
+import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
+import ru.skillbranch.skillarticles.extensions.dpToPx
+import ru.skillbranch.skillarticles.extensions.setPaddingOptionally
 
 @SuppressLint("ViewConstructor")
 class MarkdownCodeView private constructor(
@@ -27,7 +32,7 @@ class MarkdownCodeView private constructor(
             field = value
         }
 
-    override val spannableContext: Spannable
+    override val spannableContent: Spannable
         get() = tvCodeView.text as Spannable
 
     var copyListener: ((String) -> Unit)? = null
@@ -45,28 +50,41 @@ class MarkdownCodeView private constructor(
     private val tvCodeView: MarkdownTextView
 
     //colors
+    @ColorInt
+    private val darkSurface: Int = context.getColor(R.color.darkSurfaceColor)
+
+    @ColorInt
+    private val darkOnSurface: Int =
+        context.getColor(R.color.darkOnSurfaceColor)
+
+    @ColorInt
+    private val lightSurface: Int = context.getColor(R.color.lightSurfaceColor)
+
+    @ColorInt
+    private val lightOnSurface: Int =
+        context.getColor(R.color.lightOnSurfaceColor)
 
     //sized
     private val iconSize = context.dpToIntPx(12)
-    private val radius = context.dpToIntPx(8)
+    private val radius = context.dpToPx(8)
     private val padding = context.dpToIntPx(8)
     private val fadingOffset = context.dpToIntPx(144)
     private val textExtraPadding = context.dpToIntPx(80)
-    private val scrollBarHeight = context.dpToIntPx(12)
+    private val scrollBarHeight = context.dpToIntPx(2)
 
     private var isSingleLine = false
     private var isDark = false
     private var isManual = false
     private val bgColor
         get() = when {
-            !isManual -> context.attrValue(R.attr.color)
+            !isManual -> context.attrValue(com.google.android.material.R.attr.colorSurface)
             isDark -> darkSurface
             else -> lightSurface
         }
 
     private val textColor
         get() = when {
-            !isManual -> context.attrValue(R.attr.color)
+            !isManual -> context.attrValue(com.google.android.material.R.attr.colorOnSurface)
             isDark -> darkOnSurface
             else -> lightOnSurface
         }
@@ -96,7 +114,7 @@ class MarkdownCodeView private constructor(
         addView(svScroll)
 
         ivCopy = ImageView(context).apply {
-            setImageResource(R.drawable.ic_launcher)
+            setImageResource(R.drawable.ic_baseline_content_copy_24)
             imageTintList = ColorStateList.valueOf(textColor)
             setOnClickListener {
                 copyListener?.invoke(codeString.toString())
@@ -105,7 +123,7 @@ class MarkdownCodeView private constructor(
         addView(ivCopy)
 
         ivSwitch = ImageView(context).apply {
-            setImageResource(R.drawable.ic_c)
+            setImageResource(R.drawable.ic_baseline_brightness_medium_24)
             imageTintList = ColorStateList.valueOf(textColor)
             setOnClickListener { toggleColors() }
         }

@@ -1,5 +1,8 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -11,6 +14,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.getSystemService
 import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
@@ -46,6 +50,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
         setupToolbar()
         setupBottombar()
         setupSubmenu()
+        setupCopyListener()
 
         viewModel.observeState(this, ::renderUi)
         viewModel.observeSubState(this, ArticleState::toBottombarData, ::renderBotombar)
@@ -236,60 +241,15 @@ class RootActivity : AppCompatActivity(), IArticleView {
     }
 
     override fun renderSearchResult(searchResult: List<Pair<Int, Int>>) {
-
         vb.tvTextContent.renderSearchResult(searchResult)
-
-//        val content = vb.tvTextContent.text as Spannable
-//
-//        clearSearchResult()
-//
-//        searchResult.forEach { (start, end) ->
-//            content.setSpan(
-//                SearchSpan(),
-//                start,
-//                end,
-//                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-//            )
-//        }
-
     }
 
     override fun renderSearchPosition(searchPosition: Int, searchResult: List<Pair<Int, Int>>) {
         vb.tvTextContent.renderSearchPosition(searchResult.getOrNull(searchPosition))
-//        val content = vb.tvTextContent.text as Spannable
-//        Log.v("CONTENT", content.toString());
-//
-//        val spans = content.getSpans<SearchSpan>()
-//
-//        //remove old search focus span
-//        content.getSpans<SearchFocusSpan>()
-//            .forEach { content.removeSpan(it) }
-//
-//        if (spans.isNotEmpty()) {
-//            //find position span
-//            val result = spans[searchPosition]
-//            //move to selection
-//            Selection.setSelection(content, content.getSpanStart(result))
-//            //set new search focus span
-//            Log.v(
-//                "SPAN1234",
-//                content.getSpanStart(result).toString() + content.getSpanEnd(result).toString()
-//            )
-//            content.setSpan(
-//                SearchFocusSpan(),
-//                content.getSpanStart(result),
-//                content.getSpanEnd(result),
-//                SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-//            )
-//
-//        }
     }
 
     override fun clearSearchResult() {
         vb.tvTextContent.clearSearchResult()
-//        val content = vb.tvTextContent.text as Spannable
-//        content.getSpans<SearchSpan>()
-//            .forEach { content.removeSpan(it) }
     }
 
     override fun showSearchBar(resultsCount: Int, searchPosition: Int) {
@@ -305,5 +265,14 @@ class RootActivity : AppCompatActivity(), IArticleView {
             setSearchState(false)
         }
         vb.scroll.setMarginOptionally(bottom = dpToIntPx(0))
+    }
+
+    override fun setupCopyListener() {
+        vb.tvTextContent.setCopyListener { copy ->
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("Copied code", copy)
+            clipboard.setPrimaryClip(clip)
+            viewModel.handleCopyCode()
+        }
     }
 }
