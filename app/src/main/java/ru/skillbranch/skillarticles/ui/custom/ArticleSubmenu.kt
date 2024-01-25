@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewAnimationUtils
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -23,14 +22,15 @@ class ArticleSubmenu @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr), CoordinatorLayout.AttachedBehavior {
 
-    val binding: LayoutSubmenuBinding
+//    val binding: LayoutSubmenuBinding
 
     var isOpen = false
     private var centerX: Float = context.dpToPx(200)
     private var centerY: Float = context.dpToPx(96)
 
     init {
-        binding = LayoutSubmenuBinding.inflate(LayoutInflater.from(context), this)
+        requestLayout()
+//        binding = LayoutSubmenuBinding.inflate(LayoutInflater.from(context), this)
         //add material bg for handle elevation and color surface
         val materialBg = MaterialShapeDrawable.createWithElevationOverlay(context)
         materialBg.elevation = elevation

@@ -1,8 +1,5 @@
 package ru.skillbranch.skillarticles.ui
 
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -14,7 +11,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.getSystemService
 import androidx.core.view.children
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
@@ -49,7 +45,7 @@ class RootActivity : AppCompatActivity(), IArticleView {
 
         setupToolbar()
         setupBottombar()
-        setupSubmenu()
+//        setupSubmenu()
         setupCopyListener()
 
         viewModel.observeState(this, ::renderUi)
@@ -268,11 +264,11 @@ class RootActivity : AppCompatActivity(), IArticleView {
     }
 
     override fun setupCopyListener() {
-        vb.tvTextContent.setCopyListener { copy ->
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("Copied code", copy)
-            clipboard.setPrimaryClip(clip)
-            viewModel.handleCopyCode()
-        }
+//        vb.tvTextContent.setCopyListener { copy ->
+//            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+//            val clip = ClipData.newPlainText("Copied code", copy)
+//            clipboard.setPrimaryClip(clip)
+//            viewModel.handleCopyCode()
+//        }
     }
 }

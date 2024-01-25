@@ -2,7 +2,56 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="InstrumentalTest1">
+        <State>
+          <runningDeviceTargetSelectedWithDropDown>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\eshel\.android\avd\Nexus_4_API_25.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </runningDeviceTargetSelectedWithDropDown>
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\eshel\.android\avd\Nexus_4_API_25.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-01-25T11:18:39.067773Z" />
+        </State>
+      </entry>
       <entry key="app">
+        <State>
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Users\eshel\.android\avd\Nexus_4_API_25.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-01-23T12:43:31.547142900Z" />
+        </State>
+      </entry>
+      <entry key="draw_markdown_content_view()">
+        <State />
+      </entry>
+      <entry key="draw_markdown_scroll_view()">
+        <State />
+      </entry>
+      <entry key="draw_search_background()">
         <State />
       </entry>
     </value>

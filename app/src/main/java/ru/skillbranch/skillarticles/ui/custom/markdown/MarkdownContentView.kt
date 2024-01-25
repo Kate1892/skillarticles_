@@ -176,9 +176,8 @@ class MarkdownContentView @JvmOverloads constructor(
 
     fun setCopyListener(listener: (String) -> Unit) {
         copyListener = listener
-//        children.filterIsInstance<MarkdownCodeView>()
-//            .forEach { it.copyListener = listener }
-
+        children.filterIsInstance<MarkdownCodeView>()
+            .forEach { it.copyListener = listener }
     }
 
 //    public override fun onSaveInstanceState(): Parcelable? {
