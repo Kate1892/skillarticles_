@@ -1,6 +1,10 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -16,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.databinding.ActivityRootBinding
+import ru.skillbranch.skillarticles.databinding.LayoutSubmenuBinding
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
 import ru.skillbranch.skillarticles.ui.custom.delegates.viewBinding
@@ -35,17 +40,19 @@ class RootActivity : AppCompatActivity(), IArticleView {
     val vb: ActivityRootBinding by viewBinding(ActivityRootBinding::inflate)
 
     val vbBottombar
-        get() = vb.bottombar.binding
+        get() = vb.bottombar .binding
     val vbSubmenu
-        get() = vb.submenu.binding
+        get() = vb.submenu
+
     private lateinit var searchView: SearchView
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override
+    fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setupToolbar()
         setupBottombar()
-//        setupSubmenu()
+        setupSubmenu()
         setupCopyListener()
 
         viewModel.observeState(this, ::renderUi)
@@ -264,11 +271,11 @@ class RootActivity : AppCompatActivity(), IArticleView {
     }
 
     override fun setupCopyListener() {
-//        vb.tvTextContent.setCopyListener { copy ->
-//            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-//            val clip = ClipData.newPlainText("Copied code", copy)
-//            clipboard.setPrimaryClip(clip)
-//            viewModel.handleCopyCode()
-//        }
+        vb.tvTextContent.setCopyListener { copy ->
+            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip = ClipData.newPlainText("Copied code", copy)
+            clipboard.setPrimaryClip(clip)
+            viewModel.handleCopyCode()
+        }
     }
 }
