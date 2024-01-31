@@ -37,21 +37,34 @@
               <deviceKey>
                 <Key>
                   <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\eshel\.android\avd\Nexus_4_API_25.avd" />
+                  <value value="C:\Android\.android\avd\Nexus_4_API_25.avd" />
                 </Key>
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-01-23T12:43:31.547142900Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-01-30T13:10:57.142884Z" />
         </State>
       </entry>
-      <entry key="draw_markdown_content_view()">
+      <entry key="articlesubmenu()">
+        <State>
+          <targetSelectedWithDropDown>
+            <Target>
+              <type value="QUICK_BOOT_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="C:\Android\.android\avd\Nexus_4_API_25.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
+          </targetSelectedWithDropDown>
+          <timeTargetWasSelectedWithDropDown value="2024-01-30T13:11:38.472797Z" />
+        </State>
+      </entry>
+      <entry key="bottombar()">
         <State />
       </entry>
-      <entry key="draw_markdown_scroll_view()">
-        <State />
-      </entry>
-      <entry key="draw_search_background()">
+      <entry key="ordered_list()">
         <State />
       </entry>
     </value>

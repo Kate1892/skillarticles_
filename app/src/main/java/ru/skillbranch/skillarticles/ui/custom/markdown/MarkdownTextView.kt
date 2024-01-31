@@ -11,6 +11,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.withTranslation
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.attrValue
+import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.dpToPx
 
 @SuppressLint("ViewConstructor")
@@ -22,11 +23,11 @@ class MarkdownTextView(
 
     private val color = context.attrValue(com.google.android.material.R.attr.colorOnBackground)
     private val focusRect = Rect()
-    private val searchPadding = context.dpToPx(56)
+    private val searchPadding = context.dpToIntPx(56)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var searchBgHelper = SearchBgHelper(context) { top, bottom ->
-        focusRect.set(0, top - searchPadding.toInt(), width, bottom + searchPadding.toInt())
+        focusRect.set(0, top - searchPadding, width, bottom + searchPadding)
 
         requestRectangleOnScreen(focusRect, false)
     }

@@ -19,9 +19,7 @@ import kotlin.properties.Delegates
 
 
 class MarkdownContentView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
     private lateinit var elements: List<MarkdownElement>
     private lateinit var copyListener: (String) -> Unit
@@ -69,10 +67,7 @@ class MarkdownContentView @JvmOverloads constructor(
                 )
             } else {
                 it.layout(
-                    left,
-                    usedHeight,
-                    right,
-                    usedHeight + it.measuredHeight
+                    left, usedHeight, right, usedHeight + it.measuredHeight
                 )
             }
             usedHeight += it.measuredHeight
@@ -91,9 +86,7 @@ class MarkdownContentView @JvmOverloads constructor(
                         setLineSpacing(fontSize * 0.5f, 1f)
                     }
 
-                    MarkdownBuilder(context)
-                        .markdownToSpan(it)
-                        .run {
+                    MarkdownBuilder(context).markdownToSpan(it).run {
                             tv.setText(this, TextView.BufferType.SPANNABLE)
                         }
                     addView(tv)
@@ -101,11 +94,7 @@ class MarkdownContentView @JvmOverloads constructor(
 
                 is MarkdownElement.Image -> {
                     val iv = MarkdownImageView(
-                        context,
-                        textSize,
-                        it.image.url,
-                        it.image.text.toString(),
-                        it.image.alt
+                        context, textSize, it.image.url, it.image.text.toString(), it.image.alt
                     )
                     addView(iv)
 
@@ -115,9 +104,7 @@ class MarkdownContentView @JvmOverloads constructor(
 
                 is MarkdownElement.Scroll -> {
                     val sv = MarkdownCodeView(
-                        context,
-                        textSize,
-                        it.blockCode.text.toString()
+                        context, textSize, it.blockCode.text.toString()
                     )
                     sv.copyListener = copyListener
                     addView(sv)
@@ -143,14 +130,15 @@ class MarkdownContentView @JvmOverloads constructor(
         children.forEachIndexed { index, view ->
             view as IMarkdownView
             // search for child view with markdown element offset
-            view.renderSearchResult(result[index], elements[index].offset)
+            if (index < elements.size) view.renderSearchResult(
+                result[index],
+                elements[index].offset
+            )
         }
-
     }
 
     fun renderSearchPosition(
-        searchPosition: Pair<Int, Int>?,
-        force: Boolean = false
+        searchPosition: Pair<Int, Int>?, force: Boolean = false
     ) {
         searchPosition ?: return
         val bounds = elements.map { it.bounds }
@@ -176,8 +164,7 @@ class MarkdownContentView @JvmOverloads constructor(
 
     fun setCopyListener(listener: (String) -> Unit) {
         copyListener = listener
-        children.filterIsInstance<MarkdownCodeView>()
-            .forEach { it.copyListener = listener }
+        children.filterIsInstance<MarkdownCodeView>().forEach { it.copyListener = listener }
     }
 
 //    public override fun onSaveInstanceState(): Parcelable? {

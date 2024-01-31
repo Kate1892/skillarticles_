@@ -4,7 +4,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -20,7 +19,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.databinding.ActivityRootBinding
-import ru.skillbranch.skillarticles.databinding.LayoutSubmenuBinding
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
 import ru.skillbranch.skillarticles.ui.custom.delegates.viewBinding
@@ -40,14 +38,13 @@ class RootActivity : AppCompatActivity(), IArticleView {
     val vb: ActivityRootBinding by viewBinding(ActivityRootBinding::inflate)
 
     val vbBottombar
-        get() = vb.bottombar .binding
+        get() = vb.bottombar
     val vbSubmenu
         get() = vb.submenu
 
     private lateinit var searchView: SearchView
 
-    override
-    fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setupToolbar()
