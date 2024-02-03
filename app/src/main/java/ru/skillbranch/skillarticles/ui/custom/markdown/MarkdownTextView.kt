@@ -7,6 +7,8 @@ import android.graphics.Rect
 import android.text.Spannable
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
+import android.util.Log
+import android.util.TypedValue
 import androidx.annotation.VisibleForTesting
 import androidx.core.graphics.withTranslation
 import ru.skillbranch.skillarticles.R
@@ -21,9 +23,18 @@ class MarkdownTextView(
     private val isSizeDepend: Boolean = true
 ) : androidx.appcompat.widget.AppCompatTextView(context, null, 0), IMarkdownView {
 
+    override var fontSize: Float = fontSize
+        set(value) {
+            textSize = value
+            field = value
+        }
+
     private val color = context.attrValue(com.google.android.material.R.attr.colorOnBackground)
     private val focusRect = Rect()
     private val searchPadding = context.dpToIntPx(56)
+
+    override val spannableContent: Spannable
+        get() = text as Spannable
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var searchBgHelper = SearchBgHelper(context) { top, bottom ->
@@ -38,15 +49,6 @@ class MarkdownTextView(
         movementMethod = LinkMovementMethod()
     }
 
-    override var fontSize: Float = fontSize
-        set(value) {
-            textSize = value
-            field = value
-        }
-
-    override val spannableContent: Spannable
-        get() = text as Spannable
-
     override fun onDraw(canvas: Canvas) {
         if (text is Spanned && layout != null) {
             canvas.withTranslation(totalPaddingLeft.toFloat(), totalPaddingRight.toFloat()) { }
@@ -56,7 +58,9 @@ class MarkdownTextView(
     }
 
     override fun setTextSize(size: Float) {
-        if (isSizeDepend) setLineSpacing(context.dpToPx(if (size == 14f) 8 else 10), 1f)
+        if (isSizeDepend) {
+            setLineSpacing(context.dpToPx(if (size == 14f) 8 else 10), 1f)
+        }
         super.setTextSize(size)
     }
 }

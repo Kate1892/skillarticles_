@@ -11,7 +11,6 @@ fun Layout.getLineTopWithoutPadding(line: Int): Int {
     if (line == 0) {
         lineTop -= topPadding
     }
-    val p = topPadding
     return lineTop
 }
 
@@ -36,6 +35,7 @@ fun Layout.getLineBottomWithoutSpacing(line: Int): Int {
         start == lastVisible
     } else false
 
-    return if (!hasLineSpacing || isLastLine || onlyWhitespaceIsAfter) lineBottom
+    return if (!hasLineSpacing || isLastLine || onlyWhitespaceIsAfter)
+        lineBottom
     else lineBottom - spacingAdd.toInt()
 }

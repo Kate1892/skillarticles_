@@ -45,7 +45,8 @@ class SearchBgHelper(
     private val borderWidth: Int = context.dpToIntPx(1)
     private val radius: Float = context.dpToPx(8)
 
-    private val secondaryColor: Int = context.attrValue(com.google.android.material.R.attr.colorSecondary)
+    private val secondaryColor: Int =
+        context.attrValue(com.google.android.material.R.attr.colorSecondary)
     private val alphaColor: Int = ColorUtils.setAlphaComponent(secondaryColor, 160)
 
     private val drawable: Drawable = mockDrawable ?: GradientDrawable().apply {
@@ -124,10 +125,10 @@ class SearchBgHelper(
             if (headerSpans.isNotEmpty()) {
                 headerSpans[0].run {
                     this@SearchBgHelper.topExtraPadding =
-                        if (spanStart in firstLineBounds || spanEnd in firstLineBounds) topExtraPadding else 0
+                        if (spanStart in firstLineBounds || spanEnd in firstLineBounds) this.topExtraPadding else 0
 
                     this@SearchBgHelper.bottomExtraPadding =
-                        if (spanStart in lastLineBounds || spanEnd in lastLineBounds) bottomExtraPadding else 0
+                        if (spanStart in lastLineBounds || spanEnd in lastLineBounds) this.bottomExtraPadding else 0
                 }
             }
 

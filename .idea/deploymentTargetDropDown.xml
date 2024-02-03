@@ -4,17 +4,6 @@
     <value>
       <entry key="InstrumentalTest1">
         <State>
-          <runningDeviceTargetSelectedWithDropDown>
-            <Target>
-              <type value="RUNNING_DEVICE_TARGET" />
-              <deviceKey>
-                <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\eshel\.android\avd\Nexus_4_API_25.avd" />
-                </Key>
-              </deviceKey>
-            </Target>
-          </runningDeviceTargetSelectedWithDropDown>
           <targetSelectedWithDropDown>
             <Target>
               <type value="QUICK_BOOT_TARGET" />
@@ -29,6 +18,9 @@
           <timeTargetWasSelectedWithDropDown value="2024-01-25T11:18:39.067773Z" />
         </State>
       </entry>
+      <entry key="InstrumentalTest2">
+        <State />
+      </entry>
       <entry key="app">
         <State>
           <targetSelectedWithDropDown>
@@ -42,7 +34,7 @@
               </deviceKey>
             </Target>
           </targetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-01-30T13:10:57.142884Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-02-03T13:21:10.919682300Z" />
         </State>
       </entry>
       <entry key="articlesubmenu()">
@@ -61,10 +53,10 @@
           <timeTargetWasSelectedWithDropDown value="2024-01-30T13:11:38.472797Z" />
         </State>
       </entry>
-      <entry key="bottombar()">
+      <entry key="draw_markdown_content_view()">
         <State />
       </entry>
-      <entry key="ordered_list()">
+      <entry key="group_by_bounds()">
         <State />
       </entry>
     </value>
