@@ -1,4 +1,4 @@
-package ru.skillbranch.skillarticles.viewmodels
+package ru.skillbranch.skillarticles.viewmodels.article
 
 import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
@@ -86,11 +86,19 @@ interface IArticleViewModel {
      * переместиться к предидущему совпадению поиска
      */
     fun handleUpResult()
-
     /**
      * переместиться к следующему совпадению поиска
      */
     fun handleDownResult()
 
+    /**
+     * скопировать результат из CodeView в буфер обмена
+     */
     fun handleCopyCode()
+
+    /**
+     * Отправка комментария к статье, если пользователь не авторизован отобразить Auth flow
+     * сохранить введенное сообщение
+     */
+    fun handleSendMessage(message:String)
 }

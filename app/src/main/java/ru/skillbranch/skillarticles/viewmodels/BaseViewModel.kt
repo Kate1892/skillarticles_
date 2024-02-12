@@ -1,18 +1,22 @@
 package ru.skillbranch.skillarticles.viewmodels
 
 import android.os.Bundle
-import android.util.Log
+import androidx.annotation.IdRes
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.bundleOf
 import androidx.lifecycle.*
-import androidx.savedstate.SavedStateRegistryOwner
+import androidx.navigation.NavDirections
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 import java.io.Serializable
 
 abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: SavedStateHandle) :
     ViewModel() where T : VMState {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
+
+    val navigation = MutableLiveData<Event<NavCommand>>()
 
     /***
      * Инициализация начального состояния аргументом конструктоа, и объявления состояния как
@@ -25,7 +29,7 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
             if (it is Bundle) initState.fromBundle(it) as? T
             else it as T
         }
-        Log.e("BaseViewModel", "handle restore state $restoredState")
+
         value = restoredState ?: initState
     }
 
@@ -52,8 +56,9 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
      * соответсвенно при изменении конфигурации и пересоздании Activity уведомление не будет вызвано
      * повторно
      */
+    @UiThread
     protected fun notify(content: Notify) {
-        notifications.postValue(Event(content))
+        notifications.value = Event(content)
     }
 
     /***
@@ -65,16 +70,17 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
     }
 
     /***
-     * вспомогательная функция позволяющая наблюдать за изменениями части стейта ViewModel
+     * вспомогательная функция, позволяющая наблюдать за изменениями части стейта ViewModel
+     * выражение обрабатывающее изменение текущего стостояния
      */
     fun <D> observeSubState(
         owner: LifecycleOwner,
         transform: (T) -> D,
-        onChanged: (substate: D) -> Unit
+        onChanged: (subState: D) -> Unit
     ) {
         state
-            .map(transform) //трансыормируем весь стейт в необходимую модель substate
-            .distinctUntilChanged() //отфильтровываем и пропускаем дальше только если значение измнилось
+            .map(transform)
+            .distinctUntilChanged()
             .observe(owner, Observer { onChanged(it!!) })
     }
 
@@ -85,6 +91,15 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
      */
     fun observeNotifications(owner: LifecycleOwner, onNotify: (notification: Notify) -> Unit) {
         notifications.observe(owner, EventObserver { onNotify(it) })
+    }
+
+    fun observeNavigation(owner: LifecycleOwner, onNavigate: (navCommands: NavCommand) -> Unit) {
+        navigation.observe(owner, EventObserver { onNavigate(it) })
+    }
+
+    @UiThread
+    protected fun navigate(cmd: NavCommand) {
+        navigation.value = Event(cmd)
     }
 
     /***
@@ -101,37 +116,24 @@ abstract class BaseViewModel<T>(initState: T, private val savedStateHandle: Save
         }
     }
 
-    /***
-     * сохранение стейта в bundle
-     */
-    fun saveSate() {
-        Log.e("BaseViewModel", "save state $currentState")
+    fun saveState() {
         savedStateHandle.set("state", currentState)
     }
 
-    /***
-     * восстановление стейта из bundle после смерти процесса
-     */
-    /* fun restoreSate(){
-         val restoredState = savedStateHandle.get<T>("state")
-         Log.e("BaseViewModel", "restore state $restoredState")
-         restoredState ?: return
-         state.value = restoredState
-     }*/
-
+//    fun restoreState(){
+//        val restoredState = savedStateHandle.get<T>("state")
+//        restoredState ?: return
+//        state.value = restoredState
+//    }
 }
 
-class ViewModelFactory(owner: SavedStateRegistryOwner, private val params: String) :
-    AbstractSavedStateViewModelFactory(owner, bundleOf()) {
-    override fun <T : ViewModel> create(
-        key: String,
-        modelClass: Class<T>,
-        handle: SavedStateHandle
-    ): T {
-        if (modelClass.isAssignableFrom(ArticleViewModel::class.java)) {
-            return ArticleViewModel(params, handle) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+public interface VMState : Serializable {
+    open fun toBundle(): Bundle {
+        return bundleOf()
+    }
+
+    open fun fromBundle(bundle: Bundle): VMState? {
+        return null
     }
 }
 
@@ -158,32 +160,43 @@ class Event<out E>(private val content: E) {
  */
 class EventObserver<E>(private val onEventUnhandledContent: (E) -> Unit) : Observer<Event<E>> {
 
-    override fun onChanged(event: Event<E>) {
-        event.getContentIfNotHandled()?.let {
+    override fun onChanged(event: Event<E>?) {
+        //если есть необработанное событие (контент) передай в качестве аргумента в лямбду
+        // onEventUnhandledContent
+        event?.getContentIfNotHandled()?.let {
             onEventUnhandledContent(it)
         }
     }
 }
 
-sealed class Notify() {
-    abstract val message: String
-
-    data class TextMessage(override val message: String) : Notify()
+sealed class Notify(val message: String) {
+    data class TextMessage(val msg: String) : Notify(msg)
 
     data class ActionMessage(
-        override val message: String,
+        val msg: String,
         val actionLabel: String,
         val actionHandler: (() -> Unit)
-    ) : Notify()
+    ) : Notify(msg)
 
     data class ErrorMessage(
-        override val message: String,
+        val msg: String,
         val errLabel: String?,
         val errHandler: (() -> Unit)?
-    ) : Notify()
+    ) : Notify(msg)
 }
 
-public interface VMState : Serializable {
-    fun toBundle(): Bundle
-    fun fromBundle(bundle: Bundle): VMState?
+sealed class NavCommand {
+    data class Builder(
+        @IdRes val destination: Int,
+        val args: Bundle? = null,
+        val options: NavOptions? = null,
+        val extras: Navigator.Extras? = null
+    ) : NavCommand()
+
+    data class Action(val action: NavDirections) : NavCommand()
+
+    data class TopLevel(
+        @IdRes val destination: Int,
+        val options: NavOptions? = null
+    ) : NavCommand()
 }

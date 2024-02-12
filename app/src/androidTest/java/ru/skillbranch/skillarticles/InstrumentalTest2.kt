@@ -39,7 +39,7 @@ class InstrumentalTest2 {
         var ctx: Context = ApplicationProvider.getApplicationContext<App>()
 
         @BeforeClass
-        @JvmStatic
+        g@JvmStatic
         fun setupClass() {
             scaledDensity = ctx.resources.displayMetrics.scaledDensity
             metrics = ctx.resources.displayMetrics
