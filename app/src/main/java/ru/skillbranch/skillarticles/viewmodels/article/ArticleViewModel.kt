@@ -15,7 +15,6 @@ import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.indexesOf
 import ru.skillbranch.skillarticles.ui.article.ArticleFragmentArgs
 import ru.skillbranch.skillarticles.viewmodels.BaseViewModel
-import ru.skillbranch.skillarticles.viewmodels.IArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.Notify
 import ru.skillbranch.skillarticles.viewmodels.VMState
 
@@ -158,6 +157,10 @@ class ArticleViewModel(savedStateHandle: SavedStateHandle) :
 
     override fun handleCopyCode() {
         notify(Notify.TextMessage("Code copy to clipboard"))
+    }
+
+    override fun handleSendMessage(message: String) {
+        TODO("Not yet implemented")
     }
 
 }

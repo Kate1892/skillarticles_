@@ -1,8 +1,9 @@
 package ru.skillbranch.skillarticles.ui.article
 
-import ru.skillbranch.skillarticles.viewmodels.ArticleState
-import ru.skillbranch.skillarticles.viewmodels.BottombarData
-import ru.skillbranch.skillarticles.viewmodels.SubmenuData
+import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
+import ru.skillbranch.skillarticles.viewmodels.article.BottombarData
+import ru.skillbranch.skillarticles.viewmodels.article.SubmenuData
+
 
 interface IArticleView {
     fun setupSubmenu()

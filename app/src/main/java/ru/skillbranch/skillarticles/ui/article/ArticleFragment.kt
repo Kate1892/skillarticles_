@@ -3,7 +3,13 @@ package ru.skillbranch.skillarticles.ui.article
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatImageView
@@ -29,8 +35,12 @@ import ru.skillbranch.skillarticles.ui.BaseFragment
 import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
 import ru.skillbranch.skillarticles.ui.delegates.viewBinding
-import ru.skillbranch.skillarticles.viewmodels.*
-import ru.skillbranch.skillarticles.viewmodels.article.*
+import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
+import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
+import ru.skillbranch.skillarticles.viewmodels.article.BottombarData
+import ru.skillbranch.skillarticles.viewmodels.article.SubmenuData
+import ru.skillbranch.skillarticles.viewmodels.article.toBottombarData
+import ru.skillbranch.skillarticles.viewmodels.article.toSubmenuData
 
 
 class ArticleFragment :
@@ -251,44 +261,43 @@ class ArticleFragment :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-//        setHasOptionsMenu(true)
+        setHasOptionsMenu(true)
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-//        inflater.inflate(R.menu.menu_search, menu)
-//        val menuItem = menu.findItem(R.id.action_search)
-//        searchView = (menuItem?.actionView as SearchView)
-//        searchView.queryHint = getString(R.string.article_search_placeholder)
-//        if (viewModel.currentState.isSearch) {
-//            menuItem.expandActionView()
-//            searchView.setQuery(viewModel.currentState.searchQuery, false)
-//            searchView.requestFocus()
-//        } else {
-//            searchView.clearFocus()
-//        }
-//        menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
-//            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
-//                viewModel.handleSearchMode(true)
-//                return true
-//            }
-//
-//            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
-//                viewModel.handleSearchMode(false)
-//                return true
-//            }
-//        })
-//        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-//            override fun onQueryTextSubmit(query: String?): Boolean {
-//                viewModel.handleSearch(query)
-//                return true
-//            }
-//
-//            override fun onQueryTextChange(newText: String?): Boolean {
-//                viewModel.handleSearch(newText)
-//                return true
-//            }
-//        })
-//        super.onCreateOptionsMenu(menu, inflater)
-//    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_search, menu)
+        val menuItem = menu.findItem(R.id.action_search)
+        searchView = (menuItem?.actionView as SearchView)
+        searchView.queryHint = getString(R.string.article_search_placeholder)
+        if (viewModel.currentState.isSearch) {
+            menuItem.expandActionView()
+            searchView.setQuery(viewModel.currentState.searchQuery, false)
+            searchView.requestFocus()
+        } else {
+            searchView.clearFocus()
+        }
+        menuItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(p0: MenuItem): Boolean {
+                viewModel.handleSearchMode(true)
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(p0: MenuItem): Boolean {
+                viewModel.handleSearchMode(false)
+                return true
+            }
+        })
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.handleSearch(query)
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.handleSearch(newText)
+                return true
+            }
+        })
+        super.onCreateOptionsMenu(menu, inflater)
+    }
 }

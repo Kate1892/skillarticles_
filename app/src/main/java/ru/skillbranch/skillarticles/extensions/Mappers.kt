@@ -3,7 +3,7 @@ package ru.skillbranch.skillarticles.extensions
 import ru.skillbranch.skillarticles.data.AppSettings
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.local.User
-import ru.skillbranch.skillarticles.viewmodels.ArticleState
+import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 
 fun ArticleState.toAppSettings(): AppSettings {
     return AppSettings(isDarkMode, isBigText)
@@ -38,11 +38,11 @@ fun ArticleState.asMap(): Map<String, Any?> = mapOf(
 )
 
 fun User.asMap(): Map<String, Any?> = mapOf(
-    "id"  to id,
-    "name"  to name,
-    "avatar"  to avatar,
-    "rating"  to rating,
-    "respect"  to respect,
-    "about"  to about
+    "id" to id,
+    "name" to name,
+    "avatar" to avatar,
+    "rating" to rating,
+    "respect" to respect,
+    "about" to about
 )
 

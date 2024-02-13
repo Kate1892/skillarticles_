@@ -11,17 +11,18 @@ import ru.skillbranch.skillarticles.viewmodels.NavCommand
 import ru.skillbranch.skillarticles.viewmodels.VMState
 
 class ArticlesViewModel(savedStateHandle: SavedStateHandle) : BaseViewModel<ArticlesState>(
-    ArticlesState(), savedStateHandle), IArticlesViewModel {
+    ArticlesState(), savedStateHandle
+), IArticlesViewModel {
     private val repository: ArticlesRepository = ArticlesRepository()
     val articles: LiveData<List<ArticleItem>> = repository.findArticles()
 
     override fun navigateToArticle(articleItem: ArticleItem) {
         articleItem.run {
             val options = NavOptions.Builder()
-                .setEnterAnim(R.animator.nav_default_enter_anim)
-                .setExitAnim(R.animator.nav_default_exit_anim)
-                .setPopEnterAnim(R.animator.nav_default_pop_enter_anim)
-                .setPopExitAnim(R.animator.nav_default_pop_exit_anim)
+                .setEnterAnim(androidx.navigation.ui.R.animator.nav_default_enter_anim)
+                .setExitAnim(androidx.navigation.ui.R.animator.nav_default_exit_anim)
+                .setPopEnterAnim(androidx.navigation.ui.R.animator.nav_default_pop_enter_anim)
+                .setPopExitAnim(androidx.navigation.ui.R.animator.nav_default_pop_exit_anim)
             navigate(
                 NavCommand.Builder(
                     R.id.page_article,
