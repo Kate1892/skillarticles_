@@ -20,6 +20,7 @@ import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.data.adapters.UserJsonAdapter
 import ru.skillbranch.skillarticles.data.delegates.PrefDelegate
 import ru.skillbranch.skillarticles.data.delegates.PrefObjDelegate
+import ru.skillbranch.skillarticles.data.local.User
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
@@ -36,6 +37,8 @@ class PrefManager(context: Context = App.applicationContext()) {
     var isDarkMode by PrefDelegate(false)
     var accessToken by PrefDelegate("")
 
+    var profile: User? by PrefObjDelegate<User>(UserJsonAdapter())
+
 
     var testInt by PrefDelegate(Int.MAX_VALUE)
     var testLong by PrefDelegate(Long.MAX_VALUE)
@@ -49,10 +52,12 @@ class PrefManager(context: Context = App.applicationContext()) {
 
     val settings: LiveData<AppSettings>
         get() {
-            val isBig = dataStore.data.map { it[booleanPreferencesKey(this::isBigText.name)] ?: false}
-            val isDark = dataStore.data.map { it[booleanPreferencesKey(this::isDarkMode.name)] ?: false}
+            val isBig =
+                dataStore.data.map { it[booleanPreferencesKey(this::isBigText.name)] ?: false }
+            val isDark =
+                dataStore.data.map { it[booleanPreferencesKey(this::isDarkMode.name)] ?: false }
 
-            return isDark.zip(isBig){ dark, big -> AppSettings(dark,big)}
+            return isDark.zip(isBig) { dark, big -> AppSettings(dark, big) }
                 .onEach { Log.e("PrefManager", "settings $it") }
                 .distinctUntilChanged()
                 .asLiveData()

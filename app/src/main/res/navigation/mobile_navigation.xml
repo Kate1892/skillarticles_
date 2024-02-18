@@ -14,24 +14,29 @@
             app:destination="@id/page_article" />
         <argument
             android:name="is_bookmarks"
-            app:argType="boolean"
-            android:defaultValue="false" />
+            android:defaultValue="false"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/nav_bookmarks"
-        android:name="ru.skillbranch.skillarticles.ui.articles.ArticlesFragment"
+        android:name="ru.skillbranch.skillarticles.ui.bookmarks.BookmarkFragment"
         android:label="@string/title_bookmarks"
-        tools:layout="@layout/fragment_articles">
+        tools:layout="@layout/fragment_bookmark">
         <argument
             android:name="is_bookmarks"
-            app:argType="boolean"
-            android:defaultValue="true" />
+            android:defaultValue="true"
+            app:argType="boolean" />
     </fragment>
     <fragment
         android:id="@+id/nav_profile"
         android:name="ru.skillbranch.skillarticles.ui.profile.ProfileFragment"
         android:label="@string/title_profile"
         tools:layout="@layout/fragment_profile" />
+    <fragment
+        android:id="@+id/nav_transcriptions"
+        android:name="ru.skillbranch.skillarticles.ui.transcriptions.TranscriptionsFragment"
+        android:label="@string/title_transcriptions"
+        tools:layout="@layout/fragment_transcriptions" />
     <fragment
         android:id="@+id/page_article"
         android:name="ru.skillbranch.skillarticles.ui.article.ArticleFragment"
@@ -62,52 +67,51 @@
             android:name="date"
             app:argType="java.util.Date" />
     </fragment>
-<!--    <navigation-->
-<!--        android:id="@+id/auth_flow"-->
-<!--        app:startDestination="@id/nav_auth">-->
-<!--        <fragment-->
-<!--            android:id="@+id/nav_auth"-->
-<!--            android:name="ru.skillbranch.skillarticles.ui.auth.AuthFragment"-->
-<!--            android:label="@string/title_authorization"-->
-<!--            tools:layout="@layout/fragment_auth">-->
-<!--            <action-->
-<!--                android:id="@+id/action_authFragment_to_privacyPolicyFragment"-->
-<!--                app:destination="@id/page_privacy" />-->
-<!--            <action-->
-<!--                android:id="@+id/action_authFragment_to_registrationFragment"-->
-<!--                app:destination="@id/page_register" />-->
-<!--            <argument-->
-<!--                android:name="intent_destination"-->
-<!--                app:argType="integer"-->
-<!--                android:defaultValue="-1" />-->
-<!--        </fragment>-->
-<!--&lt;!&ndash;        <fragment&ndash;&gt;-->
-<!--&lt;!&ndash;            android:id="@+id/page_privacy"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:name="ru.skillbranch.skillarticles.ui.auth.PrivacyPolicyFragment"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:label="@string/title_privacy_policy"&ndash;&gt;-->
-<!--&lt;!&ndash;            tools:layout="@layout/fragment_privacy_policy" />&ndash;&gt;-->
-<!--&lt;!&ndash;        <fragment&ndash;&gt;-->
-<!--&lt;!&ndash;            android:id="@+id/page_register"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:name="ru.skillbranch.skillarticles.ui.auth.RegistrationFragment"&ndash;&gt;-->
-<!--&lt;!&ndash;            android:label="@string/title_registration"&ndash;&gt;-->
-<!--&lt;!&ndash;            tools:layout="@layout/fragment_registration">&ndash;&gt;-->
-<!--&lt;!&ndash;            <action&ndash;&gt;-->
-<!--&lt;!&ndash;                android:id="@+id/action_registrationFragment_to_privacyPolicyFragment"&ndash;&gt;-->
-<!--&lt;!&ndash;                app:destination="@id/page_privacy" />&ndash;&gt;-->
-<!--&lt;!&ndash;        </fragment>&ndash;&gt;-->
-<!--    </navigation>-->
+    <navigation
+        android:id="@+id/auth_flow"
+        app:startDestination="@id/nav_auth">
+        <fragment
+            android:id="@+id/nav_auth"
+            android:name="ru.skillbranch.skillarticles.ui.auth.AuthFragment"
+            android:label="@string/title_authorization"
+            tools:layout="@layout/fragment_auth">
+            <action
+                android:id="@+id/action_authFragment_to_privacyPolicyFragment"
+                app:destination="@id/page_privacy" />
+            <action
+                android:id="@+id/action_authFragment_to_registrationFragment"
+                app:destination="@id/page_register" />
+            <argument
+                android:name="intent_destination"
+                android:defaultValue="-1"
+                app:argType="integer" />
+        </fragment>
+        <fragment
+            android:id="@+id/page_privacy"
+            android:name="ru.skillbranch.skillarticles.ui.auth.PrivacyPolicyFragment"
+            android:label="@string/title_privacy_policy"
+            tools:layout="@layout/fragment_privacy_policy" />
+        <fragment
+            android:id="@+id/page_register"
+            android:name="ru.skillbranch.skillarticles.ui.auth.RegistrationFragment"
+            android:label="@string/title_registration"
+            tools:layout="@layout/fragment_registration">
+            <action
+                android:id="@+id/action_registrationFragment_to_privacyPolicyFragment"
+                app:destination="@id/page_privacy" />
+        </fragment>
+    </navigation>
 
-    <!--Global action -->
-<!--    <action-->
-<!--        android:id="@+id/start_login"-->
-<!--        app:destination="@id/auth_flow">-->
-<!--        <argument-->
-<!--            android:name="intent_destination"-->
-<!--            app:argType="integer"-->
-<!--            android:defaultValue="-1" />-->
-<!--    </action>-->
-<!--    <action-->
-<!--        android:id="@+id/finish_login"-->
-<!--        app:popUpTo="@id/auth_flow"-->
-<!--        app:popUpToInclusive="true" />-->
+    <action
+        android:id="@+id/start_login"
+        app:destination="@id/auth_flow">
+        <argument
+            android:name="intent_destination"
+            android:defaultValue="-1"
+            app:argType="integer" />
+    </action>
+    <action
+        android:id="@+id/finish_login"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/auth_flow" />
 </navigation>

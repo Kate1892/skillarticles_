@@ -1,5 +1,6 @@
 package ru.skillbranch.skillarticles.ui
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.IdRes
@@ -39,6 +40,7 @@ class RootActivity : AppCompatActivity() {
             setOf(
                 R.id.nav_articles,
                 R.id.nav_bookmarks,
+                R.id.nav_transcriptions,
                 R.id.nav_profile
             )
         )
@@ -67,12 +69,14 @@ class RootActivity : AppCompatActivity() {
         when (notify) {
             is Notify.TextMessage -> {
             }
+
             is Notify.ActionMessage -> {
                 snackbar.setActionTextColor(getColor(R.color.color_accent_dark))
                 snackbar.setAction(notify.actionLabel) {
                     notify.actionHandler.invoke()
                 }
             }
+
             is Notify.ErrorMessage -> {
                 with(snackbar) {
                     setBackgroundTint(getColor(R.color.design_default_color_error))
@@ -96,11 +100,28 @@ class RootActivity : AppCompatActivity() {
                 cmd.options,
                 cmd.extras
             )
+
             is NavCommand.TopLevel -> {
                 val popBackstack = navController.popBackStack(cmd.destination, false)
                 if (!popBackstack) navController.navigate(cmd.destination, null, cmd.options)
             }
+
+            is NavCommand.NavigateUp -> {
+                navController.navigateUp()
+            }
         }
+    }
+
+    @SuppressLint("VisibleForTests")
+    fun handleOnClickMessageSend() {
+        if (viewModel.state.value?.isAuth == false) {
+            navigateToAuth()
+        }
+    }
+
+    private fun navigateToAuth() {
+        viewBinding.navView.selectedItemId = R.id.nav_profile
+        viewModel.topLevelNavigate(R.id.page_article)
     }
 }
 

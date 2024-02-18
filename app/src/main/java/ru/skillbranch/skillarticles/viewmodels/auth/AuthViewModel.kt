@@ -1,0 +1,69 @@
+package ru.skillbranch.skillarticles.viewmodels.auth
+
+import android.util.Log
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigation.NavOptions
+import ru.skillbranch.skillarticles.MainFlowDirections
+import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.data.repositories.AuthRepository
+import ru.skillbranch.skillarticles.data.repositories.IAuthRepository
+import ru.skillbranch.skillarticles.ui.RootActivity
+import ru.skillbranch.skillarticles.ui.auth.AuthFragmentDirections
+import ru.skillbranch.skillarticles.viewmodels.BaseViewModel
+import ru.skillbranch.skillarticles.viewmodels.NavCommand
+import ru.skillbranch.skillarticles.viewmodels.RootViewModel
+import ru.skillbranch.skillarticles.viewmodels.VMState
+
+class AuthViewModel(savedStateHandle: SavedStateHandle) :
+    BaseViewModel<AuthState>(AuthState(), savedStateHandle), IAuthViewModel {
+    private val intentDestination: Int? = savedStateHandle["intent_destination"]
+    private val repository: IAuthRepository = AuthRepository()
+
+    init {
+        Log.d("M_AuthViewModel", "init viewmodel ${this::class.simpleName} ${this.hashCode()}")
+    }
+
+    override fun navigateToPrivacy() {
+        val options = NavOptions.Builder()
+            .setEnterAnim(androidx.navigation.ui.R.animator.nav_default_enter_anim)
+            .setExitAnim(androidx.navigation.ui.R.animator.nav_default_exit_anim)
+            .setPopEnterAnim(androidx.navigation.ui.R.animator.nav_default_pop_enter_anim)
+            .setPopExitAnim(androidx.navigation.ui.R.animator.nav_default_pop_exit_anim)
+        navigate(NavCommand.Builder(R.id.page_privacy, null, options.build()))
+    }
+
+    override fun navigateToRegistration() {
+        val action = AuthFragmentDirections.actionAuthFragmentToRegistrationFragment()
+        navigate(NavCommand.Action(action))
+    }
+
+    override fun handleLogin(login: String, password: String) {
+        repository.login(login, password)
+        navigate(NavCommand.Action(MainFlowDirections.finishLogin()))
+        intentDestination?.let {
+            if (it != -1) {
+                if (RootViewModel.privateDestinations.contains(it) && intentDestination != R.id.page_article) {
+                    val options = NavOptions.Builder()
+                        .setEnterAnim(androidx.navigation.ui.R.animator.nav_default_enter_anim)
+                        .setExitAnim(androidx.navigation.ui.R.animator.nav_default_exit_anim)
+                        .setPopEnterAnim(androidx.navigation.ui.R.animator.nav_default_pop_enter_anim)
+                        .setPopExitAnim(androidx.navigation.ui.R.animator.nav_default_pop_exit_anim)
+                    navigate(NavCommand.Builder(it, options = options.build()))
+                } else {
+                    navigate(NavCommand.NavigateUp(0))
+                }
+            }
+        }
+    }
+
+    override fun handleRegistration(name: String, login: String, password: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun resetErrors() {
+
+    }
+
+}
+
+data class AuthState(val inputErrors: Map<String, String> = emptyMap()) : VMState

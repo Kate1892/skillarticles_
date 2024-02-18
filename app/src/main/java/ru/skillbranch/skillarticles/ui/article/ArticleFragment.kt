@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.AppCompatImageView
@@ -32,9 +33,11 @@ import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.hideKeyboard
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
 import ru.skillbranch.skillarticles.ui.BaseFragment
+import ru.skillbranch.skillarticles.ui.RootActivity
 import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
 import ru.skillbranch.skillarticles.ui.delegates.viewBinding
+import ru.skillbranch.skillarticles.viewmodels.RootViewModel
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.article.BottombarData
@@ -48,6 +51,8 @@ class ArticleFragment :
     IArticleView {
     override val viewModel: ArticleViewModel by viewModels()
     override val viewBinding: FragmentArticleBinding by viewBinding(FragmentArticleBinding::bind)
+
+    val rootViewModel: RootViewModel by viewModels()
 
     private lateinit var searchView: SearchView
     private lateinit var toolbar: Toolbar
@@ -208,7 +213,7 @@ class ArticleFragment :
     }
 
     override fun onClickMessageSend() {
-        TODO("Not yet implemented")
+        root.handleOnClickMessageSend()
     }
 
     override fun setupViews() {
@@ -228,6 +233,11 @@ class ArticleFragment :
             tvTitle.text = args.title
             tvAuthor.text = args.author
             tvDate.text = args.date.format()
+
+            etComment.setOnEditorActionListener { _, actionId, _ ->
+                if (actionId == EditorInfo.IME_ACTION_SEND) onClickMessageSend()
+                true
+            }
         }
     }
 

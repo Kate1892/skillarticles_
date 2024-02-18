@@ -199,4 +199,6 @@ sealed class NavCommand {
         @IdRes val destination: Int,
         val options: NavOptions? = null
     ) : NavCommand()
+
+    data class NavigateUp(val action: Int) : NavCommand()
 }

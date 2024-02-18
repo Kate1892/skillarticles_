@@ -9,6 +9,7 @@ import android.os.Build
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import androidx.annotation.AttrRes
 
 fun Context.dpToPx(dp: Int): Float {
     return TypedValue.applyDimension(
@@ -33,6 +34,12 @@ fun Context.attrValue(res: Int): Int {
     if (this.theme.resolveAttribute(res, tv, true)) _value = tv.data
     else throw Resources.NotFoundException("Resource with id $res not found")
     return _value
+}
+
+fun Context.attrValue(@AttrRes res: Int, needRes: Boolean = true): Int {
+    val tv = TypedValue()
+    if (this.theme.resolveAttribute(res, tv, needRes)) return tv.data
+    else throw Resources.NotFoundException("Resource with id $res not found")
 }
 
 fun Context.hideKeyboard(view: View) {
