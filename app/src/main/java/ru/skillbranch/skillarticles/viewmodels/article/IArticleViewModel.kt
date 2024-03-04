@@ -3,6 +3,7 @@ package ru.skillbranch.skillarticles.viewmodels.article
 import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
+import ru.skillbranch.skillarticles.data.network.res.CommentRes
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 
 interface IArticleViewModel {
@@ -86,6 +87,7 @@ interface IArticleViewModel {
      * переместиться к предидущему совпадению поиска
      */
     fun handleUpResult()
+
     /**
      * переместиться к следующему совпадению поиска
      */
@@ -100,5 +102,7 @@ interface IArticleViewModel {
      * Отправка комментария к статье, если пользователь не авторизован отобразить Auth flow
      * сохранить введенное сообщение
      */
-    fun handleSendMessage(message:String)
+    fun handleSendMessage(message: String)
+
+    fun answerTo(comment: CommentRes?)
 }

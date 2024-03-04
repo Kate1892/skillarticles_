@@ -121,4 +121,17 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.4.0-alpha05")
     implementation("androidx.navigation:navigation-ui-ktx:2.4.0-alpha05")
 
+    implementation("androidx.paging:paging-runtime-ktx:3.0.1")
+    testImplementation ("junit:junit:4.13.2")
+    debugImplementation ("androidx.test.ext:junit:1.1.3")
+    debugImplementation("androidx.fragment:fragment-testing:1.3.6")
+    debugImplementation ("androidx.test.espresso:espresso-core:3.4.0")
+    debugImplementation ("androidx.test:core:1.4.0")
+    debugImplementation ("androidx.test:runner:1.4.0")
+    debugImplementation ("androidx.test:rules:1.4.0")
+    androidTestImplementation ("com.jraska.livedata:testing-ktx:1.3.0")
+    androidTestImplementation ("android.arch.core:core-testing:1.1.1")
+    androidTestImplementation ("io.mockk:mockk-android:1.12.0")
+    androidTestImplementation ("com.github.tmurakami:dexopener:2.0.5")
+
 }

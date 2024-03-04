@@ -2,6 +2,7 @@ package ru.skillbranch.skillarticles.ui.article
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.graphics.Rect
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -21,19 +22,22 @@ import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions.circleCropTransform
 import com.google.android.material.appbar.AppBarLayout
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.data.network.res.CommentRes
 import ru.skillbranch.skillarticles.databinding.FragmentArticleBinding
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.hideKeyboard
+import ru.skillbranch.skillarticles.extensions.screenHeight
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
+import ru.skillbranch.skillarticles.extensions.showKeyboard
 import ru.skillbranch.skillarticles.ui.BaseFragment
-import ru.skillbranch.skillarticles.ui.RootActivity
 import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
 import ru.skillbranch.skillarticles.ui.delegates.viewBinding
@@ -58,6 +62,9 @@ class ArticleFragment :
     private lateinit var toolbar: Toolbar
     private lateinit var bottombar: Bottombar
     private lateinit var submenu: ArticleSubmenu
+
+    private var commentAdapter: CommentAdapter? = null
+
 
     private val logoSize: Int by lazy { requireContext().dpToIntPx(40) }
     private val cornerRadius: Int by lazy { requireContext().dpToIntPx(8) }
@@ -213,7 +220,12 @@ class ArticleFragment :
     }
 
     override fun onClickMessageSend() {
-        root.handleOnClickMessageSend()
+        with(viewBinding.etComment) {
+            hideKeyboard()
+            clearFocus()
+            viewModel.handleSendMessage(text.toString())
+            setText("")
+        }
     }
 
     override fun setupViews() {
@@ -238,6 +250,30 @@ class ArticleFragment :
                 if (actionId == EditorInfo.IME_ACTION_SEND) onClickMessageSend()
                 true
             }
+            etComment.setOnFocusChangeListener { _, isFocused ->
+                wrapComments.isEndIconVisible = isFocused
+            }
+
+            wrapComments.isEndIconVisible = false
+            wrapComments.setEndIconOnClickListener {
+                it.hideKeyboard()
+                etComment.setText("")
+                etComment.clearFocus()
+                viewModel.answerTo(null)
+            }
+
+            with(rvComments) {
+                val maxHeight = this.screenHeight() - wrapComments.height
+                layoutParams = layoutParams.apply {
+                    height = maxHeight
+                }
+                CommentAdapter(::onSelectComment)
+                    .also { commentAdapter = it }
+                    .run {
+                        adapter = withLoadStateFooter(footer = LoadStateItemsAdapter(::retry))
+                        layoutManager = LinearLayoutManager(requireContext())
+                    }
+            }
         }
     }
 
@@ -254,6 +290,22 @@ class ArticleFragment :
         setupSubmenu()
     }
 
+    override fun onSelectComment(comment: CommentRes) {
+        with(viewBinding.wrapComments) {
+            requestRectangleOnScreen(Rect(0, 0, width, height), false)
+            postDelayed({
+                viewBinding.etComment.showKeyboard()
+            }, 300)
+        }
+        viewModel.answerTo(comment)
+    }
+
+    override fun renderAnswerTo(answerName: String?) {
+        with(viewBinding.wrapComments) {
+            hint = answerName?.let { "Answer to: $it" } ?: "Comment"
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         root.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
@@ -267,6 +319,12 @@ class ArticleFragment :
     override fun observeViewModelData() {
         viewModel.observeSubState(this, ArticleState::toBottombarData, ::renderBottombar)
         viewModel.observeSubState(this, ArticleState::toSubmenuData, ::renderSubmenu)
+
+        viewModel.observeSubState(viewLifecycleOwner, { it.answerName }, ::renderAnswerTo)
+
+        viewModel.commentPager.observe(viewLifecycleOwner) {
+            commentAdapter?.submitData(viewLifecycleOwner.lifecycle, it)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
